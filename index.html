@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Penjuru Langit — Falak LF PCNU Bangkalan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@500;700&family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap');
+:root {
+  --bg:#0e1214; --panel:#161b1e; --panel2:#1d2428; --border:rgba(255,255,255,.07);
+  --gold:#c9a227; --gold2:#e8c864; --green:#4aaa6a; --green2:#6aff8a;
+  --red:#d05060; --blue:#4a8aaa; --sun:#fbbf24; --text:#ccd4cc; --muted:#5a6a5a;
+  --lcd:#b4d49a; --lcd2:#94b47a; --lcdt:#0a2208;
+  --teal:#2dd4bf; --violet:#a78bfa;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);min-height:100dvh;font-family:'Noto Serif',serif;color:var(--text);display:flex;flex-direction:column;align-items:center;padding-bottom:48px}
+
+/* ── HEADER ── */
+.hdr{width:100%;background:linear-gradient(170deg,#1a1e22,#0d1012);border-bottom:2px solid var(--gold);padding:10px 14px;text-align:center;position:sticky;top:0;z-index:80}
+.hdr-brand{font-family:'Orbitron',monospace;font-size:.48rem;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+.hdr-title{font-family:'Orbitron',monospace;font-size:.9rem;font-weight:700;color:var(--gold2);letter-spacing:.07em;margin:2px 0 1px}
+.hdr-sub{font-size:.6rem;color:var(--muted);font-style:italic}
+.hdr-time{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--teal);margin-top:4px;letter-spacing:.06em}
+@keyframes spin-sun{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.sun-svg{animation:spin-sun 18s linear infinite;transform-origin:center;display:block}
+@media(prefers-reduced-motion:reduce){.sun-svg{animation:none}}
+
+/* ── GPS BAR ── */
+/* ── LOKASI BAR ── */
+.gps-bar{width:100%;max-width:520px;background:var(--panel2);border-bottom:1px solid var(--border);padding:7px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gps-badge{font-family:'Orbitron',monospace;font-size:.48rem;letter-spacing:.1em;color:var(--teal);background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.25);border-radius:10px;padding:2px 8px;flex-shrink:0}
+.gps-coord{font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.loc-btn{border-radius:6px;padding:5px 10px;font-size:.62rem;cursor:pointer;font-family:'Orbitron',monospace;letter-spacing:.04em;white-space:nowrap;border:1px solid;font-weight:700}
+.loc-btn-maps{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.4);color:var(--gold2)}
+.loc-btn-manual{background:rgba(45,212,191,.1);border-color:rgba(45,212,191,.3);color:var(--teal)}
+.loc-btn:active{opacity:.7}
+/* ── PASTE MAPS PANEL ── */
+.paste-panel{width:100%;max-width:520px;background:var(--panel);border-bottom:1px solid rgba(251,191,36,.2);padding:11px 13px;display:none}
+.paste-panel.show{display:block}
+.paste-title{font-family:'Orbitron',monospace;font-size:.52rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.paste-steps{font-size:.68rem;color:var(--muted);line-height:1.9;margin-bottom:9px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:7px;border-left:3px solid rgba(251,191,36,.3)}
+.paste-steps b{color:var(--gold2)}
+.paste-input-wrap{display:flex;gap:6px;align-items:stretch}
+.paste-input{flex:1;background:#0e1214;border:1px solid rgba(251,191,36,.3);color:var(--text);border-radius:7px;padding:9px 11px;font-family:'Share Tech Mono',monospace;font-size:.78rem;resize:none;height:58px;line-height:1.4}
+.paste-input:focus{outline:none;border-color:var(--gold)}
+.paste-input::placeholder{color:var(--muted);font-size:.7rem}
+.paste-go{background:linear-gradient(135deg,#3a2a00,#5a4200);border:1px solid rgba(251,191,36,.4);color:var(--gold2);border-radius:7px;padding:0 14px;font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;cursor:pointer;letter-spacing:.06em;white-space:nowrap}
+.paste-go:active{opacity:.8}
+.paste-result{margin-top:7px;font-size:.68rem;min-height:1.4em;font-family:'Share Tech Mono',monospace}
+
+/* ── MANUAL COORD PANEL ── */
+.manual-panel{width:100%;max-width:520px;background:var(--panel);border-bottom:1px solid var(--border);padding:10px 12px;display:none}
+.manual-panel.show{display:block}
+.mp-row{display:flex;align-items:center;gap:4px;margin-bottom:6px}
+.mp-lbl{font-size:.6rem;color:var(--gold);width:28px;flex-shrink:0;text-transform:uppercase;letter-spacing:.05em}
+.mp-row input{background:#0e1214;border:1px solid #2a3a2a;color:var(--green2);border-radius:5px;padding:5px 4px;font-family:'Share Tech Mono',monospace;font-size:.8rem;width:52px;text-align:center}
+.mp-row input:focus{outline:none;border-color:var(--green)}
+.mp-row .u{font-size:.68rem;color:var(--gold);font-weight:700;flex-shrink:0}
+.mp-row select{background:#0e1214;border:1px solid #2a3a2a;color:var(--gold2);border-radius:5px;padding:4px;font-family:'Share Tech Mono',monospace;font-size:.72rem}
+.mp-apply{width:100%;padding:8px;background:linear-gradient(135deg,#1a3a1a,#2a5a2a);border:1px solid rgba(100,200,100,.3);color:var(--green2);border-radius:7px;font-family:'Orbitron',monospace;font-size:.65rem;font-weight:700;letter-spacing:.08em;cursor:pointer;margin-top:2px}
+
+/* ── TABS ── */
+.tabs{display:flex;width:100%;max-width:520px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:67px;z-index:79}
+.tab{flex:1;padding:9px 2px;text-align:center;font-size:.55rem;font-weight:700;letter-spacing:.05em;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;font-family:'Orbitron',monospace}
+.tab.on{color:var(--gold2);border-bottom-color:var(--gold)}
+.tab-icon{font-size:.9rem;display:block;margin-bottom:1px}
+
+/* ── PANE ── */
+.pane{display:none;width:100%;max-width:520px;padding:10px 10px}
+.pane.on{display:block}
+
+/* ── CARD ── */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:11px 12px;margin-bottom:8px}
+.card-hd{font-family:'Orbitron',monospace;font-size:.52rem;color:var(--gold);letter-spacing:.14em;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.card-hd::after{content:'';flex:1;height:1px;background:rgba(201,162,39,.18)}
+
+/* ── SUN REALTIME WIDGET ── */
+.sun-widget{background:linear-gradient(135deg,#0f1a10,#1a2a1a);border:1px solid rgba(74,170,106,.25);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.sun-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.sun-item{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:60px}
+.sun-item-lbl{font-size:.48rem;color:var(--muted);letter-spacing:.07em;text-transform:uppercase}
+.sun-item-val{font-family:'Share Tech Mono',monospace;font-size:.76rem;color:var(--green2);font-weight:700}
+.sun-item-val.gold{color:var(--gold2)}
+.sun-badge{font-size:.5rem;background:rgba(74,170,106,.15);border:1px solid rgba(74,170,106,.2);border-radius:10px;padding:2px 8px;color:var(--green);letter-spacing:.06em}
+.pulse{animation:pls 1.5s ease-in-out infinite}
+@keyframes pls{0%,100%{opacity:1}50%{opacity:.4}}
+.sun-waktu{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:var(--muted);text-align:center;margin-top:5px}
+
+/* ── TERBIT KULMIN TERBENAM ── */
+.tkt-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.tkt-box{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 4px;text-align:center}
+.tkt-lbl{font-size:.5rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.tkt-val{font-family:'Share Tech Mono',monospace;font-size:.85rem;font-weight:700;margin-top:3px}
+.tkt-val.terbit{color:#fb923c}
+.tkt-val.kulmin{color:var(--sun)}
+.tkt-val.terbenam{color:var(--violet)}
+
+/* ── DMS INPUT ── */
+.dms-group{display:flex;align-items:center;gap:3px;flex-wrap:nowrap}
+.dms-group input{background:#0e1214;border:1px solid #2a3a2a;color:var(--green2);border-radius:5px;padding:5px 3px;font-family:'Share Tech Mono',monospace;font-size:.8rem;width:50px;text-align:center}
+.dms-group input:focus{outline:none;border-color:var(--green);background:#111a11}
+.dms-group .dl{font-size:.7rem;color:var(--gold);font-weight:700;flex-shrink:0}
+.dms-group select{background:#0e1214;border:1px solid #2a3a2a;color:var(--gold2);border-radius:5px;padding:4px 3px;font-family:'Share Tech Mono',monospace;font-size:.72rem}
+.fi{background:#0e1214;border:1px solid #2a3a2a;color:var(--green2);border-radius:5px;padding:6px 8px;font-family:'Share Tech Mono',monospace;font-size:.85rem;width:100%}
+.fi:focus{outline:none;border-color:var(--green)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:.54rem;color:var(--gold);letter-spacing:.06em;text-transform:uppercase}
+.fg small{font-size:.5rem;color:var(--muted);font-style:italic}
+
+/* ── LCD ── */
+.lcd{background:linear-gradient(170deg,var(--lcd),var(--lcd2));border-radius:8px;padding:9px 12px 11px;box-shadow:0 0 0 2px #0a0c0a,0 0 0 3px #2a3a22,inset 0 2px 5px rgba(0,0,0,.2);position:relative;overflow:hidden;margin-bottom:8px}
+.lcd::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,50,0,.06) 3px,rgba(0,50,0,.06) 4px);pointer-events:none}
+.lcd-row1{display:flex;justify-content:space-between;margin-bottom:1px}
+.lcd-mode{font-family:'Share Tech Mono',monospace;font-size:.56rem;color:#2a4a22;letter-spacing:.1em}
+.lcd-main{font-family:'Share Tech Mono',monospace;font-size:1.5rem;color:var(--lcdt);text-align:right;font-weight:700;line-height:1.1}
+.lcd-sub{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#3a5a30;text-align:right;margin-top:2px}
+.lcd-lbl{font-family:'Share Tech Mono',monospace;font-size:.54rem;color:#4a6a40;margin-top:1px}
+
+/* ── STEP LIST ── */
+.step-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
+.sl{background:var(--panel2);border-radius:7px;border-left:3px solid #2a3a2a;padding:7px 9px;transition:all .3s}
+.sl.done{border-left-color:var(--green)}.sl.active{border-left-color:var(--gold);background:#22221a}
+.sl-hd{display:flex;align-items:center;gap:6px;margin-bottom:2px}
+.sl-n{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.56rem;font-weight:700;background:#2a3a2a;color:var(--muted);font-family:'Orbitron',monospace;flex-shrink:0;transition:all .3s}
+.sl.done .sl-n{background:var(--green);color:#fff}.sl.active .sl-n{background:var(--gold);color:#000}
+.sl-title{font-size:.66rem;color:var(--muted);transition:color .3s}
+.sl.done .sl-title,.sl.active .sl-title{color:var(--text)}
+.sl-val{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--green2);padding-left:24px;display:none;margin-top:1px}
+.sl.done .sl-val,.sl.active .sl-val{display:block}
+
+/* ── KEPUTUSAN THEODOLIT ── */
+.keputusan{background:linear-gradient(135deg,#0a200a,#122012);border:1px solid rgba(74,170,106,.3);border-radius:10px;padding:14px;display:none;animation:fdu .4s ease;margin-bottom:8px}
+@keyframes fdu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.kep-lbl{font-family:'Orbitron',monospace;font-size:.5rem;color:var(--green);letter-spacing:.14em;text-transform:uppercase}
+.kep-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.kep-box-inner{background:rgba(0,0,0,.3);border:1px solid rgba(74,170,106,.2);border-radius:8px;padding:10px 6px;text-align:center;transition:all .3s}
+.kep-dir{font-family:'Orbitron',monospace;font-size:.46rem;letter-spacing:.1em;color:var(--green);margin-bottom:4px}
+.kep-val{font-family:'Share Tech Mono',monospace;font-size:1.25rem;font-weight:700;color:var(--green2)}
+.kep-hint{font-size:.6rem;color:var(--green);text-align:center;margin-bottom:6px}
+.kep-detail{background:rgba(0,0,0,.3);border-radius:6px;padding:8px 10px;font-size:.68rem;color:#90b890;line-height:1.8}
+.kep-detail b{color:var(--gold2)}
+
+/* ── KOMPAS SVG ── */
+.kompas-wrap{display:flex;justify-content:center;margin:4px 0 8px}
+
+/* ── KIBLAT CANVAS ── */
+.canvas-wrap{width:100%;max-width:520px;position:relative;touch-action:none;margin-bottom:8px}
+canvas{display:block;width:100%;aspect-ratio:1;cursor:grab}
+canvas:active{cursor:grabbing}
+.zoom-ctrl{position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:4px}
+.zoom-btn{width:30px;height:30px;background:rgba(17,34,54,.9);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* ── DATA KIBLAT BOXES ── */
+.data-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:8px}
+.data-box{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.data-box .lbl{font-size:.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.data-box .val{font-size:.95rem;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.val.green{color:var(--green)}.val.sun{color:var(--sun)}.val.gold{color:var(--gold)}
+
+/* ── MODE TABS (kiblat) ── */
+.mode-tabs{display:flex;width:100%;background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.mode-tab{flex:1;padding:8px;font-size:.72rem;font-weight:600;text-align:center;cursor:pointer;color:var(--muted);border:none;background:none;transition:all .2s;letter-spacing:.02em}
+.mode-tab.active{background:var(--gold);color:#0a0a0a}
+.waktu-manual{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:none;flex-direction:column;gap:8px;margin-bottom:8px}
+.waktu-manual.show{display:flex}
+.wm-row{display:flex;align-items:center;gap:6px}
+.wm-label{font-size:.68rem;color:var(--muted);width:52px;flex-shrink:0}
+.wm-row input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.82rem;padding:6px 8px}
+.wm-row input:focus{outline:none;border-color:var(--gold)}
+
+/* ── RASHDUL ── */
+.rashdul-panel{background:rgba(74,222,128,.04);border:1px solid rgba(74,222,128,.2);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.rq-title{font-family:'Orbitron',monospace;font-size:.52rem;color:var(--green);text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px;font-weight:600}
+.rq-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.rq-item{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;text-align:center}
+.rq-lbl{font-size:.56rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.rq-val{font-family:'Share Tech Mono',monospace;font-size:.85rem;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;letter-spacing:.03em}
+.rq-val.na{color:var(--muted);font-size:.75rem}
+.rq-countdown{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--teal);text-align:center;margin-top:4px;min-height:1.2em}
+.rq-note{font-size:.62rem;color:var(--muted);text-align:center;font-style:italic}
+
+/* ── SLIDER ── */
+.slider-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px}
+.slider-title{font-size:.68rem;color:var(--muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.08em}
+.slider-title span{color:var(--sun);font-weight:600}
+input[type=range]{width:100%;accent-color:var(--sun);cursor:pointer}
+.slider-hint{font-size:.65rem;color:var(--muted);text-align:center;margin-top:5px;line-height:1.4}
+
+/* ── INSTRUKSI ── */
+.instruksi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.82rem;text-align:center;line-height:1.6;min-height:52px;margin-bottom:8px}
+.instruksi .big{font-size:1rem;font-weight:700}
+.instruksi .kiri{color:var(--blue)}.instruksi .kanan{color:var(--gold)}.instruksi .pas{color:var(--green)}
+
+/* ── SUN WARN ── */
+.sun-warn{background:#2a1500;border:1px solid #5a3000;border-radius:8px;padding:8px 12px;font-size:.72rem;color:#f5a623;text-align:center;display:none;margin-bottom:8px}
+.sun-warn.show{display:block}
+
+/* ── LEGEND ── */
+.legend{display:flex;gap:14px;font-size:.68rem;color:var(--muted);justify-content:center;margin-bottom:8px}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-line{width:16px;height:3px;border-radius:2px}
+.ll-green{background:var(--green)}.ll-sun{background:var(--sun)}.ll-north{background:var(--red)}
+
+/* ── LAPORAN TAB ── */
+.lap-section{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.lap-hd{font-family:'Orbitron',monospace;font-size:.52rem;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.lap-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.lap-row:last-child{border-bottom:none}
+.lap-key{font-size:.68rem;color:var(--muted)}
+.lap-val{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:var(--text);font-weight:600}
+.lap-val.highlight{color:var(--green2)}
+
+.btn-export{width:100%;padding:12px;border:none;border-radius:9px;font-family:'Orbitron',monospace;font-size:.72rem;font-weight:700;letter-spacing:.1em;cursor:pointer;margin-bottom:6px;transition:all .15s}
+.btn-xlsx{background:linear-gradient(135deg,#1a3a1a,#2a5a2a);border:1px solid rgba(100,200,100,.35);color:var(--green2)}
+.btn-xlsx:active{opacity:.8}
+
+/* ── PANDUAN (theodolit) ── */
+.guide{display:flex;flex-direction:column}
+.gstep{display:flex;gap:0;position:relative}
+.gline{display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0}
+.gdot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:.56rem;font-weight:700;flex-shrink:0;margin-top:3px;z-index:1}
+.gconn{width:2px;background:rgba(255,255,255,.08);flex:1;min-height:16px}
+.gstep:last-child .gconn{display:none}
+.gbody{flex:1;padding:4px 0 16px 10px}
+.gtitle{font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:5px;line-height:1.3}
+.gdesc{font-size:.7rem;color:#8a9a80;line-height:1.7;margin-bottom:5px}
+.gbox{border-radius:0 6px 6px 0;padding:8px 11px;margin-bottom:6px;font-size:.68rem;line-height:1.75;border-left:3px solid}
+.gbox-tip{background:rgba(201,162,39,.07);border-color:var(--gold);color:#b09840}
+.gbox-tip b{color:var(--gold2)}
+.gbox-rumus{background:rgba(74,170,106,.07);border-color:var(--green);color:var(--green2);font-family:'Share Tech Mono',monospace;font-size:.66rem;word-break:break-all}
+.d0{background:rgba(74,106,170,.3);color:#88aaee}
+.d1{background:rgba(201,162,39,.3);color:var(--gold2)}
+.d2{background:rgba(74,170,74,.3);color:#88ee88}
+.d3{background:rgba(192,130,50,.3);color:#eeaa44}
+.d4{background:rgba(170,74,170,.3);color:#ee88ee}
+.d5{background:rgba(74,170,74,.4);color:var(--green2)}
+
+/* ── SUB TABS (theodolit) ── */
+.sub-tabs{display:flex;background:var(--panel2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.sub-tab{flex:1;padding:7px 4px;text-align:center;font-size:.56rem;font-weight:700;letter-spacing:.05em;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;font-family:'Orbitron',monospace}
+.sub-tab.on{color:var(--gold2);border-bottom-color:var(--gold);background:rgba(201,162,39,.05)}
+.sub-pane{display:none}.sub-pane.on{display:block}
+
+/* ── FOOTER ── */
+.foot{width:100%;max-width:520px;border-top:1px solid var(--border);padding:12px 12px 0;margin-top:4px;text-align:center}
+.foot-copy{font-size:.58rem;color:var(--muted);opacity:.6;font-style:italic}
+
+/* ── TOMBOL UTAMA ── */
+.btn-main{width:100%;padding:12px;background:linear-gradient(135deg,#1e4a1e,#2d6a2d);border:1px solid rgba(100,200,100,.35);color:var(--green2);border-radius:10px;font-family:'Orbitron',monospace;font-size:.75rem;font-weight:700;letter-spacing:.1em;cursor:pointer;margin-bottom:8px;box-shadow:0 3px 12px rgba(0,0,0,.4);transition:all .15s}
+.btn-main:active{opacity:.8}
+</style>
+<link rel="manifest" id="pwa-manifest">
+<link rel="apple-touch-icon" id="apple-icon">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Penjuru Langit">
+<meta name="theme-color" content="#c9a227">
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0">
+    <svg class="sun-svg" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="14" r="6" fill="#e8c864" opacity=".95"/>
+      <circle cx="14" cy="14" r="6" fill="url(#sg)" opacity=".6"/>
+      <defs><radialGradient id="sg" cx="40%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/></radialGradient></defs>
+      <!-- Sinar 8 arah -->
+      <line x1="14" y1="1.5" x2="14" y2="5"   stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="14" y1="23"  x2="14" y2="26.5" stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="1.5" y1="14" x2="5"   y2="14"  stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="23"  y1="14" x2="26.5" y2="14" stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="5.2"  y1="5.2"  x2="7.5"  y2="7.5"  stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="20.5" y1="20.5" x2="22.8" y2="22.8" stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="22.8" y1="5.2"  x2="20.5" y2="7.5"  stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="7.5"  y1="20.5" x2="5.2"  y2="22.8" stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    <div class="hdr-title" style="font-size:1.1rem;letter-spacing:.12em">PENJURU LANGIT</div>
+    <svg class="sun-svg" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="14" r="6" fill="#e8c864" opacity=".95"/>
+      <circle cx="14" cy="14" r="6" fill="url(#sg2)" opacity=".6"/>
+      <defs><radialGradient id="sg2" cx="40%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity=".7"/><stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/></radialGradient></defs>
+      <line x1="14" y1="1.5" x2="14" y2="5"   stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="14" y1="23"  x2="14" y2="26.5" stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="1.5" y1="14" x2="5"   y2="14"  stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="23"  y1="14" x2="26.5" y2="14" stroke="#e8c864" stroke-width="2" stroke-linecap="round"/>
+      <line x1="5.2"  y1="5.2"  x2="7.5"  y2="7.5"  stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="20.5" y1="20.5" x2="22.8" y2="22.8" stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="22.8" y1="5.2"  x2="20.5" y2="7.5"  stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="7.5"  y1="20.5" x2="5.2"  y2="22.8" stroke="#e8c864" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="hdr-time" id="hdrTime">--:--:--  WIB</div>
+</div>
+
+<!-- LOKASI BAR -->
+<div class="gps-bar">
+  <span class="gps-badge">📍 LOKASI</span>
+  <span class="gps-coord" id="gpsCoordText">Belum ditentukan — pilih metode →</span>
+  <button class="loc-btn" style="background:rgba(74,170,106,.15);border-color:rgba(74,170,106,.4);color:var(--green2)" onclick="ambilGPS()">📡 GPS</button>
+  <button class="loc-btn loc-btn-maps" onclick="togglePaste()">🗺 Maps</button>
+  <button class="loc-btn loc-btn-manual" onclick="toggleManual()">✏ Manual</button>
+</div>
+
+<!-- PASTE MAPS PANEL -->
+<div class="paste-panel" id="pastePanel">
+  <div class="paste-title">📋 Ambil Lokasi dari Google Maps</div>
+  <a href="https://earth.google.com/web" target="_blank" style="
+    display:block;width:100%;padding:10px;margin-bottom:9px;
+    background:linear-gradient(135deg,#1a2a3a,#0f3460);
+    border:1px solid rgba(66,133,244,.5);border-radius:8px;
+    color:#7ab4f5;font-family:'Orbitron',monospace;font-size:.65rem;
+    font-weight:700;letter-spacing:.08em;text-align:center;text-decoration:none">
+    🌍 BUKA GOOGLE EARTH
+    <span style="display:block;font-size:.55rem;color:#5a8ab0;margin-top:2px;font-family:'Noto Serif',serif;font-weight:400;letter-spacing:.02em">klik lokasi → koordinat muncul → salin → paste</span>
+  </a>
+
+  <div class="paste-input-wrap">
+    <textarea class="paste-input" id="pasteInput"
+      placeholder="Tempel link Maps atau koordinat di sini...&#10;Contoh: https://maps.google.com/?q=-7.05,112.73&#10;Atau: -7.0497, 112.7322"></textarea>
+    <button class="paste-go" onclick="parsePaste()">⟳<br>AMBIL</button>
+  </div>
+  <div class="paste-result" id="pasteResult"></div>
+</div>
+
+<!-- MANUAL COORD PANEL -->
+<div class="manual-panel" id="manualPanel">
+  <div class="mp-row">
+    <span class="mp-lbl">LS/LU</span>
+    <input type="number" id="mLatD" value="" min="0" max="90" placeholder="°">
+    <span class="u">°</span>
+    <input type="number" id="mLatM" value="" min="0" max="59" placeholder="'">
+    <span class="u">'</span>
+    <input type="number" id="mLatS" value="" min="0" max="59" placeholder='"'>
+    <span class="u">"</span>
+    <select id="mLatDir">
+      <option value="-1" selected>LS</option>
+      <option value="1">LU</option>
+    </select>
+  </div>
+  <div class="mp-row">
+    <span class="mp-lbl">BT/BB</span>
+    <input type="number" id="mLonD" value="" min="0" max="180" placeholder="°">
+    <span class="u">°</span>
+    <input type="number" id="mLonM" value="" min="0" max="59" placeholder="'">
+    <span class="u">'</span>
+    <input type="number" id="mLonS" value="" min="0" max="59" placeholder='"'>
+    <span class="u">"</span>
+    <select id="mLonDir">
+      <option value="1" selected>BT</option>
+      <option value="-1">BB</option>
+    </select>
+  </div>
+  <button class="mp-apply" onclick="applyManual()">⟳ Terapkan Koordinat</button>
+</div>
+
+<!-- MAIN TABS -->
+<div class="tabs">
+  <button class="tab on" onclick="gotoTab('theodolit',this)"><span class="tab-icon">🧭</span>THEODOLIT</button>
+  <button class="tab" onclick="gotoTab('kiblat',this)"><span class="tab-icon">☀️</span>KIBLAT</button>
+  <button class="tab" onclick="gotoTab('laporan',this)"><span class="tab-icon">📋</span>LAPORAN</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     TAB 1: THEODOLIT
+══════════════════════════════════════ -->
+<div class="pane on" id="pane-theodolit">
+
+  <!-- Sun realtime -->
+  <div class="sun-widget">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+      <span style="font-family:'Orbitron',monospace;font-size:.52rem;color:var(--gold);letter-spacing:.12em">☀ DATA MATAHARI REALTIME</span>
+      <span class="sun-badge pulse">LIVE</span>
+    </div>
+    <div class="sun-row">
+      <div class="sun-item"><span class="sun-item-lbl">Deklinasi (δ)</span><span class="sun-item-val" id="rt-d">—</span></div>
+      <div class="sun-item"><span class="sun-item-lbl">Eq. Time (e)</span><span class="sun-item-val gold" id="rt-e">—</span></div>
+      <div class="sun-item"><span class="sun-item-lbl">Tinggi ☀</span><span class="sun-item-val" id="rt-alt">—</span></div>
+      <div class="sun-item"><span class="sun-item-lbl">Azimut ☀</span><span class="sun-item-val gold" id="rt-az">—</span></div>
+    </div>
+    <div class="sun-waktu" id="rt-waktu">—</div>
+  </div>
+
+  <!-- Sub tabs: Auto / Panduan -->
+  <div class="sub-tabs">
+    <button class="sub-tab on" onclick="gotoSubTab('auto',this)">⚙ AUTO HITUNG</button>
+    <button class="sub-tab" onclick="gotoSubTab('panduan',this)">📝 HITUNG MANUAL</button>
+  </div>
+
+  <!-- SUB: AUTO -->
+  <div class="sub-pane on" id="sub-auto">
+    <div class="card">
+      <div class="card-hd">🕐 Waktu Bidik Matahari <span style="font-size:.5rem;color:var(--teal);font-family:'Share Tech Mono',monospace;font-weight:400;letter-spacing:.05em">· WIB (UTC+7)</span></div>
+      <div style="margin-bottom:7px">
+        <div class="fg"><label>Tanggal</label><input class="fi" type="date" id="tgl" oninput="autoHitung()"></div>
+      </div>
+      <div class="g3">
+        <div class="fg"><label>Jam</label><input class="fi" type="number" id="Wj" value="9" min="0" max="23" oninput="autoHitung()"></div>
+        <div class="fg"><label>Menit</label><input class="fi" type="number" id="Wm" value="0" min="0" max="59" oninput="autoHitung()"></div>
+        <div class="fg"><label>Detik</label><input class="fi" type="number" id="Wd" value="0" min="0" max="59" oninput="autoHitung()"></div>
+      </div>
+    </div>
+
+    <button class="btn-main" onclick="autoHitung()">⟐ HITUNG OTOMATIS</button>
+
+    <div class="lcd">
+      <div class="lcd-row1">
+        <span class="lcd-mode">DEG · THEODOLIT</span>
+        <span class="lcd-mode" id="lcd-status">TUNGGU DATA</span>
+      </div>
+      <div class="lcd-main" id="lcd-main">—</div>
+      <div class="lcd-sub" id="lcd-sub">isi koordinat & waktu bidik</div>
+      <div class="lcd-lbl">Putar theodolit ke arah Utara Hakiki:</div>
+    </div>
+
+    <div class="step-list">
+      <div class="sl" id="sl0"><div class="sl-hd"><div class="sl-n">1</div><div class="sl-title">Waktu bidik W</div></div><div class="sl-val" id="sv0">—</div></div>
+      <div class="sl" id="sl1"><div class="sl-hd"><div class="sl-n">2</div><div class="sl-title">Deklinasi (δ) &amp; Eq. Time (e)</div></div><div class="sl-val" id="sv1">—</div></div>
+      <div class="sl" id="sl2"><div class="sl-hd"><div class="sl-n">3</div><div class="sl-title">Sudut Waktu (t)</div></div><div class="sl-val" id="sv2">—</div></div>
+      <div class="sl" id="sl3"><div class="sl-hd"><div class="sl-n">4</div><div class="sl-title">Pembilang = sin(t)</div></div><div class="sl-val" id="sv3">—</div></div>
+      <div class="sl" id="sl4"><div class="sl-hd"><div class="sl-n">5</div><div class="sl-title">Penyebut = tan(δ)·cos(P) − sin(P)·cos(t)</div></div><div class="sl-val" id="sv4">—</div></div>
+      <div class="sl" id="sl5"><div class="sl-hd"><div class="sl-n">6</div><div class="sl-title">Azimut Siku |Z| = Tan⁻¹(pem÷peny)</div></div><div class="sl-val" id="sv5">—</div></div>
+      <div class="sl" id="sl6"><div class="sl-hd"><div class="sl-n">7</div><div class="sl-title">Kondisi &amp; besar putaran</div></div><div class="sl-val" id="sv6">—</div></div>
+    </div>
+
+    <div class="kompas-wrap">
+      <svg id="svg-k" viewBox="0 0 220 220" width="200" height="200">
+        <defs><radialGradient id="rg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#1a2a1a"/><stop offset="100%" stop-color="#090e09"/>
+        </radialGradient></defs>
+        <circle cx="110" cy="110" r="107" fill="url(#rg)" stroke="#2a4a2a" stroke-width="1.5"/>
+        <circle cx="110" cy="110" r="96" fill="none" stroke="#152a15" stroke-width=".8" stroke-dasharray="2 7"/>
+        <line x1="110" y1="18" x2="110" y2="202" stroke="#152a15" stroke-width=".7"/>
+        <line x1="18" y1="110" x2="202" y2="110" stroke="#152a15" stroke-width=".7"/>
+        <text x="110" y="13" text-anchor="middle" fill="#c9a227" font-size="13" font-family="serif" font-weight="bold">U</text>
+        <text x="207" y="114" text-anchor="middle" fill="#4a7a4a" font-size="11" font-family="serif">T</text>
+        <text x="110" y="217" text-anchor="middle" fill="#4a7a4a" font-size="11" font-family="serif">S</text>
+        <text x="13" y="114" text-anchor="middle" fill="#4a7a4a" font-size="11" font-family="serif">B</text>
+        <g id="g-sun"><line id="sun-ln" x1="110" y1="110" x2="110" y2="30" stroke="#c9a227" stroke-width="1.8" stroke-dasharray="4 3" opacity=".7"/><circle id="sun-c" cx="110" cy="30" r="7" fill="#c9a227" opacity=".75"/><text id="sun-t" x="110" y="26" text-anchor="middle" font-size="8" fill="#c9a227" font-family="serif">☀</text></g>
+        <g id="g-north" opacity="0"><line id="nth-ln" x1="110" y1="110" x2="110" y2="26" stroke="#4aaa6a" stroke-width="3" stroke-linecap="round"/><polygon id="nth-ar" points="110,20 105,32 115,32" fill="#4aaa6a"/><text id="nth-t" x="0" y="0" font-size="8" fill="#4aaa6a" font-family="serif" font-weight="bold">Utara Hakiki</text></g>
+        <circle cx="110" cy="110" r="5" fill="#4aaa6a"/><circle cx="110" cy="110" r="2" fill="#fff"/>
+      </svg>
+    </div>
+
+    <div class="keputusan" id="keputusan">
+      <div class="kep-lbl">🧭 Bacaan Theodolit — Utara Hakiki</div>
+      <div class="kep-grid">
+        <div class="kep-box-inner" id="box-R"><div class="kep-dir">→ KANAN (R)</div><div class="kep-val" id="kep-R">—</div></div>
+        <div class="kep-box-inner" id="box-L"><div class="kep-dir">← KIRI (L)</div><div class="kep-val" id="kep-L">—</div></div>
+      </div>
+      <div class="kep-hint" id="kep-hint">pilih yang lebih kecil</div>
+      <div class="kep-detail" id="kep-box">—</div>
+    </div>
+  </div><!-- /sub-auto -->
+
+  <!-- SUB: PANDUAN -->
+  <div class="sub-pane" id="sub-panduan">
+    <div class="guide">
+      <div class="gstep"><div class="gline"><div class="gdot d0">0</div><div class="gconn"></div></div><div class="gbody"><div class="gtitle">🔧 Persiapan</div><div class="gbox gbox-tip"><b>Alat:</b> Theodolit + statif, filter matahari, patok, alat tulis.<br><br><b>Data:</b> P = Lintang · V = Bujur · δ = Deklinasi · e = Eq.Time · W = Waktu bidik</div></div></div>
+      <div class="gstep"><div class="gline"><div class="gdot d1">1</div><div class="gconn"></div></div><div class="gbody"><div class="gtitle">☀ Bidik Matahari, Catat Waktu W</div><div class="gbox gbox-tip"><b>a.</b> Dirikan & ratakan theodolit.<br><b>b.</b> Pasang <b>filter matahari</b> — wajib!<br><b>c.</b> Bidik, catat <b>W = jam°menit'detik"</b>.<br><b>d.</b> SET 0 → skala = 0°00'00".<br><br>Hindari bidik ±15 mnt sekitar zawal.</div></div></div>
+      <div class="gstep"><div class="gline"><div class="gdot d2">2</div><div class="gconn"></div></div><div class="gbody"><div class="gtitle">📖 Data Ephemeris: δ &amp; e</div><div class="gbox gbox-tip">Buka tabel ephemeris baris jam terdekat W.<br><br>· <b>δ</b> = deklinasi (°'") · + jika Utara equator<br>· <b>e</b> = equation of time (menit'detik")</div></div></div>
+      <div class="gstep"><div class="gline"><div class="gdot d3">3</div><div class="gconn"></div></div><div class="gbody"><div class="gtitle">🔢 Hitung Sudut Waktu (t)</div><div class="gbox gbox-rumus">t = [(W − 12)×60 + e] ÷ 4 + (V − 105°)</div><div class="gbox gbox-tip"><b>Keterangan satuan:</b><br>· W = waktu bidik (jam desimal)<br>· e = Equation of Time <b>(dalam menit waktu)</b><br>· Rumus di atas menghasilkan t dalam derajat<br>· Atau cara alternatif:<br>&nbsp;&nbsp;t = (W − 12 + e÷60) × 15 + (V − 105°)<br>&nbsp;&nbsp;(e÷60 = ubah menit → jam, ×15 = jam→derajat)<br><br><b>t &lt; 0°</b> = Pagi &nbsp;·&nbsp; <b>t &gt; 0°</b> = Sore</div></div></div>
+      <div class="gstep"><div class="gline"><div class="gdot d3">4</div><div class="gconn"></div></div><div class="gbody"><div class="gtitle">🔢 Hitung Azimut Siku (Z)</div><div class="gbox gbox-rumus">Z = Tan⁻¹[ sin(t) ÷ (tan(δ)×cos(P) − sin(P)×cos(t)) ]</div></div></div>
+      <div class="gstep"><div class="gline"><div class="gdot d4">5</div><div class="gconn"></div></div><div class="gbody"><div class="gtitle">🧭 Tentukan Azimut Matahari (Az☀)</div><div class="gbox gbox-rumus" style="font-size:.7rem;line-height:2">δ(+) Pagi → Az = Z &nbsp;·&nbsp; δ(+) Sore → Az = 360°−Z<br>δ(−) Pagi → Az = 180°−Z &nbsp;·&nbsp; δ(−) Sore → Az = 180°+Z</div></div></div>
+      <div class="gstep"><div class="gline"><div class="gdot d5">6</div><div class="gconn"></div></div><div class="gbody"><div class="gtitle">📐 Baca Skala: L atau R?</div><div class="gbox gbox-rumus">← KIRI (L) = Az☀ &nbsp;·&nbsp; → KANAN (R) = 360°−Az☀</div><div class="gbox gbox-tip"><b>Pilih yang lebih kecil</b> — lebih sedikit putaran.<br>Pasang patok = <b>Utara Hakiki ✓</b></div></div></div>
+    </div>
+  </div><!-- /sub-panduan -->
+
+</div><!-- /pane-theodolit -->
+
+<!-- ══════════════════════════════════════
+     TAB 2: KIBLAT
+══════════════════════════════════════ -->
+<div class="pane" id="pane-kiblat">
+
+  <!-- Terbit Kulmin Terbenam -->
+  <div class="tkt-row">
+    <div class="tkt-box"><div class="tkt-lbl">🌅 Terbit</div><div class="tkt-val terbit" id="vTerbit">--:--</div></div>
+    <div class="tkt-box"><div class="tkt-lbl">🌞 Kulminasi</div><div class="tkt-val kulmin" id="vKulmin">--:--</div></div>
+    <div class="tkt-box"><div class="tkt-lbl">🌇 Terbenam</div><div class="tkt-val terbenam" id="vTerbenam">--:--</div></div>
+  </div>
+
+  <!-- Rashdul Qiblat -->
+  <div class="rashdul-panel">
+    <div class="rq-title">🕌 Rashdul Qiblat Hari Ini</div>
+    <div class="rq-grid">
+      <div class="rq-item"><div class="rq-lbl">Kesempatan I</div><div class="rq-val" id="vRqPagi">—</div></div>
+      <div class="rq-item"><div class="rq-lbl">Kesempatan II</div><div class="rq-val" id="vRqSore">—</div></div>
+    </div>
+    <div class="rq-countdown" id="rqCountdown"></div>
+    <div class="rq-note" id="rqNote">Hitung koordinat untuk melihat Rashdul Qiblat</div>
+    <div style="margin-top:8px;background:rgba(0,0,0,.25);border-radius:6px;padding:7px 10px;border-left:3px solid rgba(74,170,106,.4)">
+      <div style="font-family:'Orbitron',monospace;font-size:.46rem;color:var(--green);letter-spacing:.08em;margin-bottom:4px;text-transform:uppercase">📐 Rumus — Metode F & R (terverifikasi ±1 menit)</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:.63rem;color:#90c890;line-height:2.0">
+        A = 90° − φ &nbsp;·&nbsp; Q = az. kiblat &nbsp;·&nbsp; J = 90° − δ<br>
+        F = arctan[ 1 ÷ (cos(A) × tan(360°−Q)) ]<br>
+        R = arccos[ tan(A) × cos(F) ÷ tan(J) ]<br>
+        WIS<sub>I</sub> = (F+R)÷15 + 12 &nbsp;·&nbsp; WIS<sub>II</sub> = (F−R)÷15 + 12<br>
+        WIB = WIS − S &nbsp;·&nbsp; S = e÷60 − (105°−λ)÷15<br>
+        <span style="color:var(--muted);font-size:.56rem">φ = lintang · λ = bujur · δ = deklinasi · e = EoT (menit)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data kiblat -->
+  <div class="data-grid">
+    <div class="data-box"><div class="lbl">Kiblat</div><div class="val green" id="vKiblat">—°</div></div>
+    <div class="data-box"><div class="lbl">Bayangan</div><div class="val sun" id="vBayangan">—°</div></div>
+    <div class="data-box"><div class="lbl">Selisih</div><div class="val gold" id="vSelisih">—°</div></div>
+  </div>
+
+  <!-- Az Matahari info -->
+  <div style="text-align:center;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:6px">
+    Az ☀: <span id="vAzMat" style="color:var(--sun)">—</span> &nbsp;·&nbsp; Alt: <span id="vAlt" style="color:var(--green2)">—</span> &nbsp;·&nbsp; δ: <span id="vDekl" style="color:var(--text)">—</span>
+  </div>
+
+  <!-- Mode waktu -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabRt" onclick="setMode('rt')">⏱ Real-time</button>
+    <button class="mode-tab" id="tabMan" onclick="setMode('manual')">🕐 Manual</button>
+  </div>
+  <div class="waktu-manual" id="waktuManual">
+    <div class="wm-row"><span class="wm-label">Tanggal</span><input type="date" id="inpTanggal"></div>
+    <div class="wm-row"><span class="wm-label">Jam (WIB)</span><input type="time" id="inpJam" step="1"></div>
+    <button class="btn-main" style="margin-top:2px" onclick="hitungManual()">⟳ Hitung</button>
+  </div>
+
+  <!-- Canvas Kompas Kiblat -->
+  <div class="canvas-wrap">
+    <canvas id="c" width="420" height="420"></canvas>
+    <div class="zoom-ctrl">
+      <button class="zoom-btn" onclick="zoomIn()">＋</button>
+      <button class="zoom-btn" onclick="zoomOut()">－</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-line ll-north"></div>Utara</div>
+    <div class="legend-item"><div class="legend-line ll-green"></div>Kiblat</div>
+    <div class="legend-item"><div class="legend-line ll-sun"></div>Bayangan</div>
+  </div>
+
+  <!-- Slider -->
+  <div class="slider-wrap">
+    <div class="slider-title">☀️ Sesuaikan arah bayangan: <span id="sliderVal">—°</span></div>
+    <input type="range" id="sliderBayangan" min="0" max="359.9" step="0.1" value="0" oninput="onSlider(this.value)">
+    <div class="slider-hint">Geser slider agar garis kuning sejajar bayangan benda tegak</div>
+  </div>
+
+  <!-- Instruksi -->
+  <div class="instruksi" id="instruksi">Koordinat belum ditentukan — gunakan GPS atau isi manual.</div>
+  <div class="sun-warn" id="sunWarn"></div>
+
+</div><!-- /pane-kiblat -->
+
+<!-- ══════════════════════════════════════
+     TAB 3: LAPORAN
+══════════════════════════════════════ -->
+<div class="pane" id="pane-laporan">
+
+  <div class="lap-section">
+    <div class="lap-hd">🕌 Data Objek Pengukuran</div>
+    <div class="lap-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+      <span style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.06em">Nama Masjid / Musholla</span>
+      <input id="inpNamaMasjid" class="fi" type="text" placeholder="Contoh: Masjid Al-Ikhlas" style="width:100%;font-size:.78rem;padding:7px 10px">
+    </div>
+    <div class="lap-row" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px">
+      <span style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.06em">Alamat</span>
+      <input id="inpAlamat" class="fi" type="text" placeholder="Desa / Kecamatan / Kabupaten" style="width:100%;font-size:.78rem;padding:7px 10px">
+    </div>
+    <div class="lap-row" style="flex-direction:column;align-items:flex-start;gap:4px;margin-top:6px">
+      <span style="font-size:.6rem;color:var(--gold);text-transform:uppercase;letter-spacing:.06em">Azimut Bangunan / Mihrab (°)</span>
+      <div style="display:flex;gap:6px;width:100%;align-items:center">
+        <input id="inpAzBgD" class="fi" type="number" placeholder="°" min="0" max="359" style="width:60px;font-size:.85rem;padding:6px 8px;text-align:center">
+        <span style="color:var(--gold);font-size:.8rem">°</span>
+        <input id="inpAzBgM" class="fi" type="number" placeholder="'" min="0" max="59" style="width:52px;font-size:.85rem;padding:6px 8px;text-align:center">
+        <span style="color:var(--gold);font-size:.8rem">'</span>
+        <input id="inpAzBgS" class="fi" type="number" placeholder='"' min="0" max="59" style="width:52px;font-size:.85rem;padding:6px 8px;text-align:center">
+        <span style="color:var(--gold);font-size:.8rem">"</span>
+      </div>
+      <span id="lapSelisihAzimut" style="font-size:.65rem;color:var(--teal);margin-top:3px"></span>
+    </div>
+  </div>
+
+  <div class="lap-section">
+    <div class="lap-hd">📍 Lokasi</div>
+    <div class="lap-row"><span class="lap-key">Koordinat</span><span class="lap-val highlight" id="lapKoord">—</span></div>
+    <div class="lap-row"><span class="lap-key">Sumber</span><span class="lap-val" id="lapSumber">—</span></div>
+    <div class="lap-row"><span class="lap-key">Tanggal Hitung</span><span class="lap-val" id="lapTanggal">—</span></div>
+  </div>
+
+  <div class="lap-section">
+    <div class="lap-hd">🕌 Data Kiblat</div>
+    <div class="lap-row"><span class="lap-key">Azimut Kiblat</span><span class="lap-val highlight" id="lapKiblat">—</span></div>
+    <div class="lap-row"><span class="lap-key">Rashdul Qiblat I</span><span class="lap-val" id="lapRqPagi">—</span></div>
+    <div class="lap-row"><span class="lap-key">Rashdul Qiblat II</span><span class="lap-val" id="lapRqSore">—</span></div>
+  </div>
+
+  <div class="lap-section">
+    <div class="lap-hd">🧭 Data Theodolit</div>
+    <div class="lap-row"><span class="lap-key">Waktu Bidik (W)</span><span class="lap-val" id="lapW">—</span></div>
+    <div class="lap-row"><span class="lap-key">Deklinasi (δ)</span><span class="lap-val" id="lapDekl">—</span></div>
+    <div class="lap-row"><span class="lap-key">Eq. of Time (e)</span><span class="lap-val" id="lapEoT">—</span></div>
+    <div class="lap-row"><span class="lap-key">Sudut Waktu (t)</span><span class="lap-val" id="lapT">—</span></div>
+    <div class="lap-row"><span class="lap-key">Azimut Siku |Z|</span><span class="lap-val" id="lapZ">—</span></div>
+    <div class="lap-row"><span class="lap-key">Azimut Matahari</span><span class="lap-val" id="lapAzMat">—</span></div>
+    <div class="lap-row"><span class="lap-key">Putar Kiri (L)</span><span class="lap-val highlight" id="lapL">—</span></div>
+    <div class="lap-row"><span class="lap-key">Putar Kanan (R)</span><span class="lap-val highlight" id="lapR">—</span></div>
+  </div>
+
+  <div class="lap-section">
+    <div class="lap-hd">☀️ Data Matahari Hari Ini</div>
+    <div class="lap-row"><span class="lap-key">Terbit</span><span class="lap-val" id="lapTerbit">—</span></div>
+    <div class="lap-row"><span class="lap-key">Kulminasi / Zawal</span><span class="lap-val" id="lapKulmin">—</span></div>
+    <div class="lap-row"><span class="lap-key">Terbenam</span><span class="lap-val" id="lapTerbenam">—</span></div>
+    <div class="lap-row"><span class="lap-key">Altitude ☀ (saat bidik)</span><span class="lap-val" id="lapAlt">—</span></div>
+  </div>
+
+  <button class="btn-export btn-xlsx" onclick="exportWord()">
+    📄 Download Sertifikat Word (.docx)
+  </button>
+  <div style="font-size:.62rem;color:var(--muted);text-align:center;margin-bottom:8px;line-height:1.5">
+    Isi data objek pengukuran di atas → sertifikat otomatis terisi lengkap
+  </div>
+
+</div><!-- /pane-laporan -->
+
+<div class="foot">
+  <div class="foot-copy" style="font-size:.75rem;opacity:.8;font-style:normal;letter-spacing:.03em">الحاسب: محمد طوبى</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// FALAKPRO CORE v2 — Algoritma Terbaik
+// Jean Meeus Ch.25: koefisien lengkap + EoT RA-based + refraksi Bennett
+// Rashdul Qiblat: Metode F & R — terverifikasi vs Istiwa'mobile & LF PCNU Bangkalan
+// ═══════════════════════════════════════════════════════════════
+// Koordinat Ka'bah — Masjidil Haram, Makkah al-Mukarramah
+// Sumber: SK Kemenag RI No. D.IV/Ed/2005 & Odeh (2004) "Accurate Times"
+// 21°25'21.04" LU / 39°49'34.05" BT
+const KABAH_LAT = 21.42251, KABAH_LON = 39.82613;
+const RAD = Math.PI/180, DEG = 180/Math.PI;
+const mod360 = x => ((x%360)+360)%360;
+
+function toJD(date){ return date.getTime()/86400000+2440587.5; }
+
+function hitungMatahari(lat,lon,date,tz=7){
+  const JD=toJD(date), T=(JD-2451545)/36525;
+  const L0=mod360(280.46646+36000.76983*T+0.0003032*T*T);
+  const M=mod360(357.52911+35999.05029*T-0.0001537*T*T), Mr=M*RAD;
+  const C=(1.914602-0.004817*T-0.000014*T*T)*Math.sin(Mr)
+        +(0.019993-0.000101*T)*Math.sin(2*Mr)+0.000289*Math.sin(3*Mr);
+  const SunLon=L0+C;
+  const Om=mod360(125.04-1934.136*T);
+  const lam=SunLon-0.00569-0.00478*Math.sin(Om*RAD);
+  const eps0=23.439291111-0.013004167*T-0.0000001639*T*T+0.0000005036*T*T*T;
+  const eps=eps0+0.00256*Math.cos(Om*RAD);
+  const delta=Math.asin(Math.sin(eps*RAD)*Math.sin(lam*RAD))*DEG;
+  const RA=mod360(Math.atan2(Math.cos(eps*RAD)*Math.sin(lam*RAD),Math.cos(lam*RAD))*DEG);
+  let eot=L0-0.0057183-RA;
+  while(eot>180)eot-=360; while(eot<-180)eot+=360; eot*=4;
+  const solarNoon=12-(lon-tz*15)/15-eot/60;
+  const hours=date.getHours()+date.getMinutes()/60+date.getSeconds()/3600;
+  const H=(hours-solarNoon)*15;
+  const sinAlt=Math.sin(lat*RAD)*Math.sin(delta*RAD)+Math.cos(lat*RAD)*Math.cos(delta*RAD)*Math.cos(H*RAD);
+  const alt=Math.asin(Math.max(-1,Math.min(1,sinAlt)))*DEG;
+  let altApp=alt;
+  if(alt>-0.575){const denom=alt+10.3/(alt+5.11);if(denom>0.01){const R=1.02/Math.tan(denom*RAD)/60;if(R>0&&R<0.7)altApp=alt+R;}}
+  const cosAlt=Math.cos(altApp*RAD);
+  let az=0;
+  if(cosAlt>0.0001){
+    const cosAz=(Math.sin(delta*RAD)-Math.sin(lat*RAD)*Math.sin(altApp*RAD))/(Math.cos(lat*RAD)*cosAlt);
+    az=Math.acos(Math.max(-1,Math.min(1,cosAz)))*DEG;
+    if(Math.sin(H*RAD)>0)az=360-az;
+  }
+  return{delta,eot,alt,altApp,az:mod360(az),H,solarNoon};
+}
+
+function azimutViaT(t,delta,lat){
+  const peny=Math.tan(delta*RAD)*Math.cos(lat*RAD)-Math.sin(lat*RAD)*Math.cos(t*RAD);
+  const Zdeg=Math.atan2(Math.sin(t*RAD),peny)*DEG, Zabs=Math.abs(Zdeg);
+  const pagi=t<0, dU=delta>0;
+  let Az;
+  if(pagi&&dU)Az=Zabs; else if(!pagi&&dU)Az=360-Zabs;
+  else if(pagi&&!dU)Az=180-Zabs; else Az=180+Zabs;
+  return{Zdeg,Zabs,Az:mod360(Az),peny};
+}
+
+function hitungKiblat(lat,lon){
+  const dL=rad(KABAH_LON-lon);
+  const y=Math.sin(dL)*Math.cos(rad(KABAH_LAT));
+  const x=Math.cos(rad(lat))*Math.sin(rad(KABAH_LAT))-Math.sin(rad(lat))*Math.cos(rad(KABAH_LAT))*Math.cos(dL);
+  return mod360(Math.atan2(y,x)*DEG);
+}
+
+function hitungTerbitTerbenam(lat,lon,date,tz=7){
+  const JD=toJD(new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0));
+  const T=(JD-2451545)/36525;
+  const M=mod360(357.52911+35999.05029*T), L0=mod360(280.46646+36000.76983*T);
+  const C=(1.914602-0.004817*T)*Math.sin(M*RAD)+(0.019993-0.000101*T)*Math.sin(2*M*RAD);
+  const Om=mod360(125.04-1934.136*T);
+  const lam=L0+C-0.00569-0.00478*Math.sin(Om*RAD);
+  const eps=23.439291111-0.013004167*T+0.00256*Math.cos(Om*RAD);
+  const delta=Math.asin(Math.sin(eps*RAD)*Math.sin(lam*RAD))*DEG;
+  const RA=mod360(Math.atan2(Math.cos(eps*RAD)*Math.sin(lam*RAD),Math.cos(lam*RAD))*DEG);
+  let eot2=L0-0.0057183-RA; while(eot2>180)eot2-=360; while(eot2<-180)eot2+=360; eot2*=4;
+  const noon=12-(lon-tz*15)/15-eot2/60;
+  const cosH0=(Math.sin(-0.833*RAD)-Math.sin(lat*RAD)*Math.sin(delta*RAD))/(Math.cos(lat*RAD)*Math.cos(delta*RAD));
+  if(Math.abs(cosH0)>1)return null;
+  const H0=Math.acos(cosH0)*DEG;
+  return{terbit:noon-H0/15,kulmin:noon,terbenam:noon+H0/15};
+}
+
+function hitungRashdulQiblat(lat,lon,azKiblat,date,tz=7){
+  // Formula Rashdul Qiblat — metode F & R (versi terverifikasi)
+  // Diuji & terbukti akurat ±1 menit vs Istiwa'mobile & software LF PCNU Bangkalan
+  // Ref tambahan notasi: Odeh (2004); Khafid (2001)
+  const JD=toJD(new Date(date.getFullYear(),date.getMonth(),date.getDate(),12,0,0));
+  const T=(JD-2451545)/36525;
+  const M=mod360(357.52911+35999.05029*T), L0=mod360(280.46646+36000.76983*T);
+  const C=(1.914602-0.004817*T)*Math.sin(M*RAD)+(0.019993-0.000101*T)*Math.sin(2*M*RAD);
+  const Om=mod360(125.04-1934.136*T);
+  const lam=L0+C-0.00569-0.00478*Math.sin(Om*RAD);
+  const eps=23.439291111-0.013004167*T+0.00256*Math.cos(Om*RAD);
+  const D=Math.asin(Math.sin(eps*RAD)*Math.sin(lam*RAD))*DEG;
+  const RA2=mod360(Math.atan2(Math.cos(eps*RAD)*Math.sin(lam*RAD),Math.cos(lam*RAD))*DEG);
+  let eot2=L0-0.0057183-RA2; while(eot2>180)eot2-=360; while(eot2<-180)eot2+=360; eot2*=4;
+  const EoT=eot2, S=EoT/60-(105-lon)/15;
+  const A=90-lat, Q=azKiblat, J=90-D;
+  const denom=Math.cos(A*RAD)*Math.tan((360-Q)*RAD);
+  if(Math.abs(denom)<1e-10)return null;
+  const F=Math.atan(1/denom)*DEG;
+  const argR=(1/Math.tan(J*RAD))*Math.tan(A*RAD)*Math.cos(F*RAD);
+  if(Math.abs(argR)>1)return null;
+  const Rv=Math.acos(argR)*DEG;
+  const wisPagi=(F+Rv)/15+12, wisSore=(F-Rv)/15+12;
+  const wibPagi=wisPagi-S, wibSore=wisSore-S;
+  const noon=12-(lon-tz*15)/15-EoT/60;
+  const cosH0=(Math.sin(-0.833*RAD)-Math.sin(lat*RAD)*Math.sin(D*RAD))/(Math.cos(lat*RAD)*Math.cos(D*RAD));
+  if(Math.abs(cosH0)>1)return null;
+  const H0=Math.acos(cosH0)*DEG;
+  const terbit=noon-H0/15, terbenam=noon+H0/15;
+  return{
+    pagi:(wibPagi>terbit&&wibPagi<terbenam)?wibPagi:null,
+    sore:(wibSore>terbit&&wibSore<terbenam)?wibSore:null,
+    D,EoT,F,R:Rv
+  };
+}
+
+// ── Helpers ──
+const rad=x=>x*RAD, deg=x=>x*DEG;
+function toDMS(v,signed=true){
+  const sg=(signed&&v<0)?'−':''; const a=Math.abs(v);
+  const d=Math.floor(a), mf=(a-d)*60, m=Math.floor(mf);
+  let s=Math.round((mf-m)*60);
+  // Perbaiki rollover tanpa rekursi
+  if(s>=60){s=0; const m2=m+1; if(m2>=60){return `${sg}${d+1}°00'00"`;} return `${sg}${d}°${String(m2).padStart(2,'0')}'00"`;}
+  return `${sg}${d}°${String(m).padStart(2,'0')}'${String(s).padStart(2,'0')}"`;
+}
+function eotDMS(e){
+  const sg=e<0?'−':''; const a=Math.abs(e);
+  const m=Math.floor(a), s=Math.round((a-m)*60);
+  return `${sg}${m}'${String(s).padStart(2,'0')}"`;
+}
+function eotLabel(e){
+  const sg=e>=0?'+':'−'; const a=Math.abs(e);
+  const m=Math.floor(a), s=Math.round((a-m)*60);
+  return `${sg}${m}m${String(s).padStart(2,'0')}d`;
+}
+function jamFmt(h,secs=false){
+  if(h===null||isNaN(h))return'--:--';
+  const total=((h%24)+24)%24, hh=Math.floor(total);
+  const mm=Math.floor((total-hh)*60);
+  const ss=Math.floor(((total-hh)*60-mm)*60);
+  return secs?`${p(hh)}:${p(mm)}:${p(ss)}`:`${p(hh)}:${p(mm)}`;
+}
+const p=n=>String(n).padStart(2,'0');
+
+// ═══════════════════════════════════
+// STATE GLOBAL
+// ═══════════════════════════════════
+let G = {
+  lat:null, lon:null, sumberKoord:'—',
+  azKiblat:null, azBayangan:null, azMatSmooth:null,
+  sol:null, sliderManual:false,
+  tt:null, rq:null,
+  // theodolit state
+  lastTheo:{delta:null,eot:null,t:null,Zabs:null,Az_sun:null,putarL:null,putarR:null,alt:null,W:null}
+};
+
+const AZ_BUF=[];
+function smoothAz(a){
+  AZ_BUF.push(a); if(AZ_BUF.length>10)AZ_BUF.shift();
+  let ss=0,cs=0; AZ_BUF.forEach(x=>{ss+=Math.sin(x*RAD);cs+=Math.cos(x*RAD);});
+  return mod360(Math.atan2(ss/AZ_BUF.length,cs/AZ_BUF.length)*DEG);
+}
+
+// ═══════════════════════════════════
+// GPS & KOORDINAT
+// ═══════════════════════════════════
+function ambilGPS(){
+  const coord=document.getElementById('gpsCoordText');
+  if(!navigator.geolocation){coord.textContent='GPS tidak didukung browser ini.';return;}
+  coord.textContent='⏳ Mengambil lokasi GPS...';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      setKoord(pos.coords.latitude,pos.coords.longitude,'GPS Otomatis');
+    },
+    err=>{
+      const msg={1:'Izin GPS ditolak.',2:'Lokasi tidak tersedia.',3:'Timeout GPS.'};
+      coord.textContent='⚠ '+(msg[err.code]||'GPS gagal.');
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+  );
+}
+
+function hitungSelisihAzBangunan(){
+  const d=parseFloat(document.getElementById('inpAzBgD').value)||0;
+  const m=parseFloat(document.getElementById('inpAzBgM').value)||0;
+  const s=parseFloat(document.getElementById('inpAzBgS').value)||0;
+  const azBg=d+m/60+s/3600;
+  const el=document.getElementById('lapSelisihAzimut');
+  if(!G.azKiblat||!(d||m||s)){el.textContent='';return;}
+  let sel=G.azKiblat-azBg;
+  if(sel>180)sel-=360; if(sel<-180)sel+=360;
+  const abs=Math.abs(sel);
+  const arah=sel>0?'putar kanan':'putar kiri';
+  el.textContent=`Selisih: ${toDMS(abs,false)} — ${arah} untuk luruskan ke kiblat`;
+}
+
+function togglePaste(){
+  document.getElementById('pastePanel').classList.toggle('show');
+  document.getElementById('manualPanel').classList.remove('show');
+  if(document.getElementById('pastePanel').classList.contains('show'))
+    setTimeout(()=>document.getElementById('pasteInput').focus(),100);
+}
+
+function parsePaste(){
+  const raw=document.getElementById('pasteInput').value.trim();
+  const res=document.getElementById('pasteResult');
+  if(!raw){res.style.color='#f87171';res.textContent='⚠ Kosong — tempel link atau koordinat dulu.';return;}
+
+  let lat=null,lon=null;
+
+  // ── Pola 1: URL Google Maps dengan @ (paling umum)
+  // https://www.google.com/maps/place/.../@-7.1234,112.5678,17z
+  let m=raw.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if(m){lat=parseFloat(m[1]);lon=parseFloat(m[2]);}
+
+  // ── Pola 2: URL ?q=lat,lon atau ?ll=lat,lon
+  if(!lat){m=raw.match(/[?&](?:q|ll)=(-?\d+\.?\d*),(-?\d+\.?\d*)/);if(m){lat=parseFloat(m[1]);lon=parseFloat(m[2]);}}
+
+  // ── Pola 3: URL /maps?q=lat,lon (short link setelah redirect — biasanya tidak bisa, tapi coba)
+  if(!lat){m=raw.match(/maps[^\s]*[/@](-?\d{1,3}\.\d+)[,\s]+(-?\d{1,3}\.\d+)/);if(m){lat=parseFloat(m[1]);lon=parseFloat(m[2]);}}
+
+  // ── Pola 4: Koordinat desimal langsung: -7.1234, 112.5678
+  if(!lat){m=raw.match(/^(-?\d{1,3}\.\d+)[,\s;]+(-?\d{1,3}\.\d+)/);if(m){lat=parseFloat(m[1]);lon=parseFloat(m[2]);}}
+
+  // ── Pola 5: DMS Google Earth: 7°02'56.92"S 112°43'20.94"E
+  if(!lat){
+    const dms=raw.match(/(\d+)[°º](\d+)['''′](\d+\.?\d*)[""″]?\s*([NSns])\s+(\d+)[°º](\d+)['''′](\d+\.?\d*)[""″]?\s*([EWBTewbt])/);
+    if(dms){
+      lat=(parseFloat(dms[1])+parseFloat(dms[2])/60+parseFloat(dms[3])/3600)*(/[Ss]/.test(dms[4])?-1:1);
+      lon=(parseFloat(dms[5])+parseFloat(dms[6])/60+parseFloat(dms[7])/3600)*(/[WwBb]/.test(dms[8])?-1:1);
+    }
+  }
+  if(Math.abs(lat)>90||Math.abs(lon)>180){
+    res.style.color='#f87171';res.textContent='❌ Nilai koordinat di luar batas.';return;
+  }
+
+  res.style.color='#6aff8a';
+  res.textContent=`✅ Terdeteksi: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+  setTimeout(()=>{
+    document.getElementById('pastePanel').classList.remove('show');
+    document.getElementById('pasteInput').value='';
+    res.textContent='';
+  },1200);
+  setKoord(lat,lon,'Google Maps');
+}
+
+function setKoord(lat,lon,sumber){
+  G.lat=lat; G.lon=lon; G.sumberKoord=sumber;
+  G.azKiblat=hitungKiblat(lat,lon);
+  const dmsLat=toDMS(Math.abs(lat),false)+(lat<0?' LS':' LU');
+  const dmsLon=toDMS(Math.abs(lon),false)+(lon>=0?' BT':' BB');
+  document.getElementById('gpsCoordText').textContent=`${dmsLat} | ${dmsLon}`;
+  refreshTerbitRashdul();
+  tickSun();
+  autoHitung();
+  updateLaporan();
+}
+
+function toggleManual(){
+  document.getElementById('manualPanel').classList.toggle('show');
+  document.getElementById('pastePanel').classList.remove('show');
+}
+
+function applyManual(){
+  const d=(id)=>parseFloat(document.getElementById(id).value)||0;
+  const lat=Math.abs(d('mLatD'))+d('mLatM')/60+d('mLatS')/3600;
+  const lon=d('mLonD')+d('mLonM')/60+d('mLonS')/3600;
+  const latSigned=lat*parseFloat(document.getElementById('mLatDir').value);
+  const lonSigned=lon*parseFloat(document.getElementById('mLonDir').value);
+  setKoord(latSigned,lonSigned,'Manual');
+  document.getElementById('manualPanel').classList.remove('show');
+}
+
+// ═══════════════════════════════════
+// THEODOLIT — AUTO HITUNG
+// ═══════════════════════════════════
+function rstSteps(){for(let i=0;i<7;i++){document.getElementById('sl'+i).classList.remove('done','active');document.getElementById('sv'+i).textContent='—';}}
+function doneStep(i,val){document.getElementById('sl'+i).classList.add('done');document.getElementById('sv'+i).textContent=val;}
+
+function autoHitung(){
+  if(!G.lat){document.getElementById('lcd-status').textContent='TUNGGU KOORDINAT';return;}
+  const Wj=parseFloat(document.getElementById('Wj').value)||0;
+  const Wm=parseFloat(document.getElementById('Wm').value)||0;
+  const Wd=parseFloat(document.getElementById('Wd').value)||0;
+  const tz=7;
+  const tglVal=document.getElementById('tgl').value;
+  if(!tglVal){document.getElementById('lcd-status').textContent='PILIH TANGGAL';return;}
+  const[yr,mo,dy]=tglVal.split('-').map(Number);
+  const dateInput=new Date(yr,mo-1,dy,Wj,Wm,Math.round(Wd));
+  const sol=hitungMatahari(G.lat,G.lon,dateInput,tz);
+  const{delta,eot}=sol, t=sol.H;
+  const{Zabs,Az:Az_sun,peny}=azimutViaT(t,delta,G.lat);
+  const putarL=Az_sun, putarR=mod360(360-Az_sun);
+  const lebihKecil=putarR<=putarL?'R':'L';
+  const pagi=t<0,dU=delta>0;
+
+  // Simpan ke state global untuk laporan
+  G.lastTheo={delta,eot,t,Zabs,Az_sun,putarL,putarR,alt:sol.altApp,W:`${p(Wj)}:${p(Wm)}:${p(Math.round(Wd))}`};
+
+  rstSteps();
+  doneStep(0,`W = ${p(Wj)}°${p(Wm)}'${p(Math.round(Wd))}" (jam bidik)`);
+  doneStep(1,`δ = ${toDMS(delta)}   |   e = ${eotDMS(eot)}`);
+  doneStep(2,`t = ${toDMS(t)}`);
+  doneStep(3,`sin(t) = ${Math.sin(t*RAD).toFixed(6)}`);
+  doneStep(4,`penyebut = ${peny.toFixed(6)}`);
+  doneStep(5,`|Z| = ${toDMS(Zabs,false)}`);
+  doneStep(6,`Az☀ = ${toDMS(Az_sun,false)}  →  R=${toDMS(putarR,false)}  L=${toDMS(putarL,false)}`);
+
+  document.getElementById('rt-d').textContent=toDMS(delta);
+  document.getElementById('rt-e').textContent=eotDMS(eot);
+  document.getElementById('rt-alt').textContent=toDMS(sol.altApp);
+  document.getElementById('rt-az').textContent=toDMS(sol.az,false);
+
+  const mainVal=lebihKecil==='R'?toDMS(putarR,false):toDMS(putarL,false);
+  const mainDir=lebihKecil==='R'?'→ KANAN (R)':'← KIRI (L)';
+  document.getElementById('lcd-main').textContent=mainVal;
+  document.getElementById('lcd-sub').textContent=`${mainDir}   ·   |Z| = ${toDMS(Zabs,false)}`;
+  document.getElementById('lcd-status').textContent='✓ SELESAI';
+
+  document.getElementById('kep-R').textContent=toDMS(putarR,false);
+  document.getElementById('kep-L').textContent=toDMS(putarL,false);
+  const boxR=document.getElementById('box-R'),boxL=document.getElementById('box-L');
+  boxR.style.background=lebihKecil==='R'?'rgba(74,170,74,.2)':'rgba(0,0,0,.3)';
+  boxL.style.background=lebihKecil==='L'?'rgba(74,170,74,.2)':'rgba(0,0,0,.3)';
+  boxR.style.border=lebihKecil==='R'?'2px solid rgba(74,200,74,.5)':'1px solid rgba(74,170,106,.2)';
+  boxL.style.border=lebihKecil==='L'?'2px solid rgba(74,200,74,.5)':'1px solid rgba(74,170,106,.2)';
+  document.getElementById('kep-hint').textContent=lebihKecil==='R'?'✓ Lebih praktis putar KANAN (R)':'✓ Lebih praktis putar KIRI (L)';
+  const kond=(pagi?'Pagi (t<0°)':'Sore (t>0°)')+' · '+(dU?'δ(+) Utara':'δ(−) Selatan');
+  document.getElementById('kep-box').innerHTML=
+    `<b>Az☀ dari Utara:</b> ${toDMS(Az_sun,false)}<br>`+
+    `<b>Kondisi:</b> ${kond}<br>`+
+    `<b>Altitude ☀ (+refraksi):</b> ${toDMS(sol.altApp)}<br><br>`+
+    `<b>Theodolit:</b> Nol di matahari → putar <b>R sampai ${toDMS(putarR,false)}</b> atau <b>L sampai ${toDMS(putarL,false)}</b> → Utara Hakiki ✓`;
+  document.getElementById('keputusan').style.display='block';
+  drawKompas(Az_sun);
+  updateLaporan();
+}
+
+function drawKompas(Az_sun){
+  const cx=110,cy=110,r=82,xy=(az,rr)=>({x:cx+rr*Math.sin(az*RAD),y:cy-rr*Math.cos(az*RAD)});
+  const nu=xy(0,r*.88),tip=xy(0,r*.97),lp=xy(-5,r*.8),rp=xy(5,r*.8);
+  document.getElementById('nth-ln').setAttribute('x2',nu.x);
+  document.getElementById('nth-ln').setAttribute('y2',nu.y);
+  document.getElementById('nth-ar').setAttribute('points',`${tip.x},${tip.y} ${lp.x},${lp.y} ${rp.x},${rp.y}`);
+  const nl=xy(0,r*1.08);
+  document.getElementById('nth-t').setAttribute('x',nl.x-24);
+  document.getElementById('nth-t').setAttribute('y',nl.y+3);
+  document.getElementById('g-north').setAttribute('opacity','1');
+  const sp=xy(Az_sun,r*.82);
+  document.getElementById('sun-ln').setAttribute('x2',sp.x);
+  document.getElementById('sun-ln').setAttribute('y2',sp.y);
+  document.getElementById('sun-c').setAttribute('cx',sp.x);
+  document.getElementById('sun-c').setAttribute('cy',sp.y);
+  const sl2=xy(Az_sun,r*1.06);
+  document.getElementById('sun-t').setAttribute('x',sl2.x);
+  document.getElementById('sun-t').setAttribute('y',sl2.y+3);
+}
+
+// ═══════════════════════════════════
+// REALTIME SUN (theodolit widget)
+// ═══════════════════════════════════
+function realtimeSun(){
+  if(!G.lat)return;
+  const tz=7;
+  const now=new Date();
+  const sol=hitungMatahari(G.lat,G.lon,now,tz);
+  document.getElementById('rt-waktu').textContent=
+    `${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())} · δ=${toDMS(sol.delta)} · e=${eotDMS(sol.eot)}`;
+  document.getElementById('rt-d').textContent=toDMS(sol.delta);
+  document.getElementById('rt-e').textContent=eotDMS(sol.eot);
+  document.getElementById('rt-alt').textContent=toDMS(sol.altApp);
+  document.getElementById('rt-az').textContent=toDMS(smoothAz(sol.az),false);
+}
+
+// ═══════════════════════════════════
+// KIBLAT — TICK & DRAW
+// ═══════════════════════════════════
+function refreshTerbitRashdul(){
+  if(!G.lat)return;
+  G.tt=hitungTerbitTerbenam(G.lat,G.lon,new Date());
+  G.rq=hitungRashdulQiblat(G.lat,G.lon,G.azKiblat,new Date());
+  document.getElementById('vTerbit').textContent=G.tt?jamFmt(G.tt.terbit):'N/A';
+  document.getElementById('vKulmin').textContent=G.tt?jamFmt(G.tt.kulmin):'N/A';
+  document.getElementById('vTerbenam').textContent=G.tt?jamFmt(G.tt.terbenam):'N/A';
+  const elP=document.getElementById('vRqPagi'),elS=document.getElementById('vRqSore');
+  if(G.rq&&(G.rq.pagi||G.rq.sore)){
+    elP.textContent=G.rq.pagi?jamFmt(G.rq.pagi,true):'Tdk terjadi'; elP.className=G.rq.pagi?'rq-val':'rq-val na';
+    elS.textContent=G.rq.sore?jamFmt(G.rq.sore,true):'Tdk terjadi'; elS.className=G.rq.sore?'rq-val':'rq-val na';
+    document.getElementById('rqNote').textContent='Saat bayangan benda tegak lurus ke arah kiblat';
+  } else {
+    elP.textContent='Tdk terjadi'; elP.className='rq-val na';
+    elS.textContent='Tdk terjadi'; elS.className='rq-val na';
+    document.getElementById('rqNote').textContent='Rashdul Qiblat tidak terjadi hari ini di lokasi ini';
+  }
+  updateLaporan();
+}
+
+function tickCountdown(){
+  if(!G.rq||!G.lat){document.getElementById('rqCountdown').textContent='';return;}
+  const now=new Date();
+  const nowH=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+  const targets=[G.rq.pagi,G.rq.sore].filter(x=>x!==null&&x>nowH);
+  if(!targets.length){document.getElementById('rqCountdown').textContent='';return;}
+  const next=Math.min(...targets);
+  const diffH=(next-nowH)*3600;
+  const hh=Math.floor(diffH/3600), mm=Math.floor((diffH%3600)/60), ss=Math.floor(diffH%60);
+  document.getElementById('rqCountdown').textContent=
+    `⏳ Rashdul berikutnya dalam ${p(hh)}:${p(mm)}:${p(ss)}`;
+}
+
+function tickSun(){if(!G.lat)return;tickSunCore(new Date());}
+function tickSunWithDate(dateObj){AZ_BUF.length=0;tickSunCore(dateObj);}
+
+function tickSunCore(now){
+  if(!G.lat)return;
+  const sol=hitungMatahari(G.lat,G.lon,now);
+  G.sol=sol;
+  const azSmooth=smoothAz(sol.az);
+  G.azMatSmooth=azSmooth;
+  const azBayAuto=mod360(azSmooth+180);
+  document.getElementById('vAzMat').textContent=toDMS(azSmooth,false);
+  document.getElementById('vAlt').textContent=toDMS(sol.altApp,false);
+  document.getElementById('vDekl').textContent=toDMS(sol.dekl||sol.delta,false);
+  if(!G.sliderManual){
+    const diff=G.azBayangan===null?999:Math.abs(mod360(azBayAuto-G.azBayangan));
+    const d2=diff>180?360-diff:diff;
+    if(d2>0.5||G.azBayangan===null){
+      G.azBayangan=+azBayAuto.toFixed(1);
+      document.getElementById('sliderBayangan').value=G.azBayangan;
+      document.getElementById('sliderVal').textContent=toDMS(G.azBayangan,false);
+    }
+  }
+  const warn=document.getElementById('sunWarn');
+  if(sol.alt<0){warn.classList.add('show');warn.textContent='🌙 Matahari di bawah ufuk — bayangan tidak tersedia.';}
+  else if(sol.alt<5){warn.classList.add('show');warn.textContent='⚠️ Altitude terlalu rendah (<5°) — bayangan kurang akurat.';}
+  else warn.classList.remove('show');
+  updateKiblatDisplay();
+}
+
+function onSlider(v){
+  G.azBayangan=Number(v); G.sliderManual=true;
+  document.getElementById('sliderVal').textContent=toDMS(G.azBayangan,false);
+  updateKiblatDisplay();
+}
+
+function updateKiblatDisplay(){
+  if(G.azKiblat===null||G.azBayangan===null)return;
+  let sel=G.azKiblat-G.azBayangan;
+  if(sel>180)sel-=360; if(sel<-180)sel+=360;
+  sel=Math.round(sel*10)/10;
+  document.getElementById('vKiblat').textContent=toDMS(G.azKiblat,false);
+  document.getElementById('vBayangan').textContent=toDMS(G.azBayangan,false);
+  document.getElementById('vSelisih').textContent=toDMS(sel);
+  const el=document.getElementById('instruksi'), abs=Math.abs(sel);
+  if(abs<1.5)el.innerHTML=`<span class="big pas">✅ Anda sudah menghadap Kiblat!</span>`;
+  else if(sel>0)el.innerHTML=`Putar <span class="big kanan">${toDMS(abs,false)} ke KANAN</span><br><small style="color:var(--muted)">untuk menghadap kiblat dari arah bayangan ini</small>`;
+  else el.innerHTML=`Putar <span class="big kiri">${toDMS(abs,false)} ke KIRI</span><br><small style="color:var(--muted)">untuk menghadap kiblat dari arah bayangan ini</small>`;
+  draw();
+}
+
+// ── Canvas kompas kiblat ──
+let zoomLevel=1.0;
+function zoomIn(){zoomLevel=Math.min(2.5,+(zoomLevel+0.25).toFixed(2));draw();}
+function zoomOut(){zoomLevel=Math.max(0.5,+(zoomLevel-0.25).toFixed(2));draw();}
+
+function draw(){
+  const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H); ctx.save();
+  ctx.translate(W/2,H/2); ctx.scale(zoomLevel,zoomLevel); ctx.translate(-W/2,-H/2);
+  const cx=W/2,cy=H/2,R=W/2-16;
+  // Background putih
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,R,0,Math.PI*2);ctx.strokeStyle='#a0aabb';ctx.lineWidth=2;ctx.stroke();
+  [0.55,0.3].forEach(f=>{ctx.beginPath();ctx.arc(cx,cy,R*f,0,Math.PI*2);ctx.strokeStyle='rgba(150,165,185,0.35)';ctx.lineWidth=1;ctx.stroke();});
+  const dirs=[{a:0,lbl:'U',big:true,red:true},{a:45,lbl:'TL'},{a:90,lbl:'T',big:true},{a:135,lbl:'TG'},{a:180,lbl:'S',big:true},{a:225,lbl:'BD'},{a:270,lbl:'B',big:true},{a:315,lbl:'BL'}];
+  dirs.forEach(d=>{
+    const a=rad(d.a-90),r1=d.big?R-7:R-4;
+    ctx.beginPath();ctx.moveTo(cx+r1*Math.cos(a),cy+r1*Math.sin(a));ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));
+    ctx.strokeStyle=d.big?'#5878a8':'#9aaac8';ctx.lineWidth=d.big?2:1;ctx.stroke();
+    if(d.big||d.lbl.length<=2){
+      const rl=R-(d.big?21:17);
+      ctx.font=d.big?'bold 11px system-ui':'8.5px system-ui';
+      ctx.fillStyle=d.red?'#dc2626':'#3a5a9a';
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(d.lbl,cx+rl*Math.cos(a),cy+rl*Math.sin(a));
+    }
+  });
+  if(G.azKiblat===null){ctx.restore();return;}
+  const azS=G.azMatSmooth||(G.sol?G.sol.az:0);
+  if(G.sol&&G.sol.alt>0)drawGaris(ctx,cx,cy,azS,R*.82,'rgba(251,146,60,0.3)',1.5);
+  drawGaris(ctx,cx,cy,G.azBayangan,R*.87,'#fbbf24',2.5);
+  drawGaris(ctx,cx,cy,G.azKiblat,R*.87,'#4ade80',3);
+  if(G.sol&&G.sol.alt>0){
+    const aSun=rad(azS-90),sx=cx+(R-14)*Math.cos(aSun),sy=cy+(R-14)*Math.sin(aSun);
+    ctx.save();ctx.translate(sx,sy);ctx.strokeStyle='#fb923c';ctx.lineWidth=1.5;ctx.shadowColor='#fb923c';ctx.shadowBlur=6;
+    for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.moveTo(Math.cos(a)*11,Math.sin(a)*11);ctx.lineTo(Math.cos(a)*15,Math.sin(a)*15);ctx.stroke();}
+    ctx.beginPath();ctx.arc(0,0,9,0,Math.PI*2);ctx.fillStyle='#fb923c';ctx.shadowBlur=10;ctx.fill();
+    ctx.beginPath();ctx.arc(0,0,4.5,0,Math.PI*2);ctx.fillStyle='#fde68a';ctx.shadowBlur=0;ctx.fill();
+    ctx.restore();
+  }
+  let sel=G.azKiblat-G.azBayangan;
+  if(sel>180)sel-=360;if(sel<-180)sel+=360;
+  const arcR=R*.36,a1=rad(G.azBayangan-90),a2=rad(G.azKiblat-90);
+  ctx.beginPath();ctx.arc(cx,cy,arcR,a1,a2,sel<0);
+  ctx.strokeStyle=Math.abs(sel)<1.5?'#4ade80':'rgba(212,168,67,.85)';
+  ctx.lineWidth=2;ctx.setLineDash([5,4]);ctx.stroke();ctx.setLineDash([]);
+  const midA=rad(G.azBayangan+sel/2-90);
+  ctx.font='bold 9.5px system-ui';ctx.fillStyle='#b8860b';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.shadowColor='rgba(255,255,255,0.8)';ctx.shadowBlur=4;
+  ctx.fillText(Math.abs(sel).toFixed(1)+'°',cx+(arcR+15)*Math.cos(midA),cy+(arcR+15)*Math.sin(midA));
+  ctx.shadowBlur=0;
+  ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fillStyle='#555555';ctx.fill();
+  ctx.beginPath();ctx.arc(cx,cy,3,0,Math.PI*2);ctx.fillStyle='#ffffff';ctx.fill();
+  ctx.restore();
+}
+function drawGaris(ctx,cx,cy,az,len,color,lw){
+  const a=rad(az-90);
+  ctx.save();ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.setLineDash([]);
+  ctx.shadowColor=color;ctx.shadowBlur=8;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+len*Math.cos(a),cy+len*Math.sin(a));ctx.stroke();
+  ctx.globalAlpha=.15;ctx.shadowBlur=0;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx-len*Math.cos(a),cy-len*Math.sin(a));ctx.stroke();
+  ctx.globalAlpha=1;ctx.restore();
+}
+
+// ── Mode waktu kiblat ──
+let modeWaktu='rt';
+function setMode(m){
+  modeWaktu=m;
+  document.getElementById('tabRt').classList.toggle('active',m==='rt');
+  document.getElementById('tabMan').classList.toggle('active',m==='manual');
+  document.getElementById('waktuManual').classList.toggle('show',m==='manual');
+  if(m==='manual'){
+    const now=new Date();
+    document.getElementById('inpTanggal').value=now.toISOString().slice(0,10);
+    document.getElementById('inpJam').value=`${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}`;
+  }
+}
+function hitungManual(){
+  if(!G.lat){alert('Koordinat belum ditentukan.');return;}
+  const tgl=document.getElementById('inpTanggal').value, jam=document.getElementById('inpJam').value;
+  if(!tgl||!jam){alert('Isi tanggal dan jam.');return;}
+  const dateObj=new Date(`${tgl}T${jam}`);
+  if(isNaN(dateObj)){alert('Format tidak valid.');return;}
+  tickSunWithDate(dateObj);
+}
+
+// ═══════════════════════════════════
+// LAPORAN
+// ═══════════════════════════════════
+function updateLaporan(){
+  const now=new Date();
+  document.getElementById('lapKoord').textContent=G.lat!==null?
+    `${toDMS(Math.abs(G.lat),false)}${G.lat<0?' LS':' LU'} | ${toDMS(Math.abs(G.lon),false)}${G.lon>=0?' BT':' BB'}`:'—';
+  document.getElementById('lapSumber').textContent=G.sumberKoord;
+  document.getElementById('lapTanggal').textContent=now.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('lapKiblat').textContent=G.azKiblat!==null?toDMS(G.azKiblat,false):'—';
+  document.getElementById('lapRqPagi').textContent=G.rq?.pagi?jamFmt(G.rq.pagi,true):(G.rq?'Tidak terjadi':'—');
+  document.getElementById('lapRqSore').textContent=G.rq?.sore?jamFmt(G.rq.sore,true):(G.rq?'Tidak terjadi':'—');
+  document.getElementById('lapTerbit').textContent=G.tt?jamFmt(G.tt.terbit,true):'—';
+  document.getElementById('lapKulmin').textContent=G.tt?jamFmt(G.tt.kulmin,true):'—';
+  document.getElementById('lapTerbenam').textContent=G.tt?jamFmt(G.tt.terbenam,true):'—';
+  const th=G.lastTheo;
+  document.getElementById('lapW').textContent=th.W||'—';
+  document.getElementById('lapDekl').textContent=th.delta!==null?toDMS(th.delta):'—';
+  document.getElementById('lapEoT').textContent=th.eot!==null?eotDMS(th.eot):'—';
+  document.getElementById('lapT').textContent=th.t!==null?toDMS(th.t):'—';
+  document.getElementById('lapZ').textContent=th.Zabs!==null?toDMS(th.Zabs,false):'—';
+  document.getElementById('lapAzMat').textContent=th.Az_sun!==null?toDMS(th.Az_sun,false):'—';
+  document.getElementById('lapL').textContent=th.putarL!==null?toDMS(th.putarL,false):'—';
+  document.getElementById('lapR').textContent=th.putarR!==null?toDMS(th.putarR,false):'—';
+  document.getElementById('lapAlt').textContent=th.alt!==null?toDMS(th.alt):'—';
+}
+
+// ═══════════════════════════════════
+// ═══════════════════════════════════
+// EXPORT WORD — Pure XML + JSZip
+// Tidak butuh library eksternal besar
+// ═══════════════════════════════════
+function exportWord(){
+  if(!G.lat){alert('Koordinat belum ditentukan.\nLakukan hitung koordinat dulu.');return;}
+  const th=G.lastTheo;
+  const now=new Date();
+  const dd=String(now.getDate()).padStart(2,'0');
+  const mm2=String(now.getMonth()+1).padStart(2,'0');
+  const yyyy=now.getFullYear();
+
+  const latStr    = G.lat!==null    ? toDMS(Math.abs(G.lat),false)+(G.lat<0?' LS':' LU') : '—';
+  const lonStr    = G.lon!==null    ? toDMS(Math.abs(G.lon),false)+(G.lon>=0?' BT':' BB') : '—';
+  const tglPanjang= now.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const azKibStr  = G.azKiblat!==null  ? toDMS(G.azKiblat,false)      : '—';
+  const rqPStr    = G.rq?.pagi         ? jamFmt(G.rq.pagi,true)+' WIB' : 'Tidak terjadi hari ini';
+  const rqSStr    = G.rq?.sore         ? jamFmt(G.rq.sore,true)+' WIB' : 'Tidak terjadi hari ini';
+  const tbitStr   = G.tt ? jamFmt(G.tt.terbit,true)+' WIB'   : '—';
+  const kulStr    = G.tt ? jamFmt(G.tt.kulmin,true)+' WIB'   : '—';
+  const tbnmStr   = G.tt ? jamFmt(G.tt.terbenam,true)+' WIB' : '—';
+  const dkStr     = th.delta!==null  ? toDMS(th.delta)           : '—';
+  const eoStr     = th.eot!==null    ? eotDMS(th.eot)            : '—';
+  const tStr2     = th.t!==null      ? toDMS(th.t)               : '—';
+  const zStr      = th.Zabs!==null   ? toDMS(th.Zabs,false)      : '—';
+  const amStr     = th.Az_sun!==null ? toDMS(th.Az_sun,false)    : '—';
+  const lStr      = th.putarL!==null ? toDMS(th.putarL,false)    : '—';
+  const rStr      = th.putarR!==null ? toDMS(th.putarR,false)    : '—';
+  const alStr     = th.alt!==null    ? toDMS(th.alt)             : '—';
+  const wBStr     = th.W || '—';
+
+  // Data dari input laporan
+  const namaMasjid = document.getElementById('inpNamaMasjid')?.value.trim()||'';
+  const alamat     = document.getElementById('inpAlamat')?.value.trim()||'';
+  const azBgD = parseFloat(document.getElementById('inpAzBgD')?.value)||0;
+  const azBgM = parseFloat(document.getElementById('inpAzBgM')?.value)||0;
+  const azBgS = parseFloat(document.getElementById('inpAzBgS')?.value)||0;
+  const azBgVal = azBgD+azBgM/60+azBgS/3600;
+  const azBgStr = (azBgD||azBgM||azBgS) ? toDMS(azBgVal,false) : "___°___'___\"";
+  let selisihAzStr = "___°___'___\"";
+  if(G.azKiblat!==null && (azBgD||azBgM||azBgS)){
+    let sel=G.azKiblat-azBgVal; if(sel>180)sel-=360; if(sel<-180)sel+=360;
+    selisihAzStr=toDMS(sel);
+  }
+
+  const xe = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const HIJ = '1F7A1F';
+
+  // ── XML helpers ──
+  const rpr = (sz,bold,color,italic,ul,font) => {
+    font = font||'Times New Roman';
+    return `<w:rPr><w:rFonts w:ascii="${font}" w:hAnsi="${font}"/><w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/>`+
+      (bold?'<w:b/><w:bCs/>':[])+(italic?'<w:i/><w:iCs/>':[])+(ul?'<w:u w:val="single"/>':[])+(color&&color!='000000'?`<w:color w:val="${color}"/>`:[])+'</w:rPr>';
+  };
+  const wr = (t,sz,bold,color,italic,ul,font) =>
+    `<w:r>${rpr(sz||24,bold,color||'000000',italic,ul,font)}<w:t xml:space="preserve">${xe(t)}</w:t></w:r>`;
+
+  const ppr = (jc,spB,spA,line,bdrBot) =>
+    `<w:pPr><w:jc w:val="${jc||'center'}"/><w:spacing w:before="${spB||0}" w:after="${spA||0}" w:line="${line||276}" w:lineRule="auto"/>`+
+    (bdrBot?`<w:pBdr><w:bottom w:val="single" w:sz="10" w:space="1" w:color="${HIJ}"/></w:pBdr>`:[])+'</w:pPr>';
+
+  const wp  = (runs,jc,spB,spA,line,bdrBot) => `<w:p>${ppr(jc,spB,spA,line,bdrBot)}${runs}</w:p>`;
+  const gap = n => Array(n||1).fill(wp(wr(' ',12),'center')).join('');
+
+  // Baris tabel hasil pengukuran
+  const tcell = (txt,w,fill,bold) =>
+    `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>`+
+    `<w:tcBorders><w:top w:val="single" w:sz="4" w:color="${HIJ}"/><w:bottom w:val="single" w:sz="4" w:color="${HIJ}"/>`+
+    `<w:left w:val="single" w:sz="4" w:color="${HIJ}"/><w:right w:val="single" w:sz="4" w:color="${HIJ}"/></w:tcBorders>`+
+    `<w:shd w:val="clear" w:fill="${fill||'FFFFFF'}"/>`+
+    `<w:tcMar><w:top w:w="60" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/>`+
+    `<w:left w:w="110" w:type="dxa"/><w:right w:w="110" w:type="dxa"/></w:tcMar></w:tcPr>`+
+    `<w:p><w:pPr><w:jc w:val="left"/></w:pPr>${wr(txt,22,bold)}</w:p></w:tc>`;
+
+  const hRow = (lbl,val) =>
+    `<w:tr>${tcell(lbl,3500,'F0F0F0',true)}${tcell(':',240,'F0F0F0',true)}${tcell(val,2760,'FFFFFF',true)}</w:tr>`;
+
+  const tblHasil =
+    `<w:tbl><w:tblPr><w:tblW w:w="6500" w:type="dxa"/><w:tblInd w:w="0" w:type="dxa"/>`+
+    `<w:tblBorders><w:top w:val="single" w:sz="4" w:color="${HIJ}"/><w:bottom w:val="single" w:sz="4" w:color="${HIJ}"/>`+
+    `<w:left w:val="single" w:sz="4" w:color="${HIJ}"/><w:right w:val="single" w:sz="4" w:color="${HIJ}"/>`+
+    `<w:insideH w:val="single" w:sz="4" w:color="${HIJ}"/><w:insideV w:val="single" w:sz="4" w:color="${HIJ}"/></w:tblBorders></w:tblPr>`+
+    `<w:tblGrid><w:gridCol w:w="3500"/><w:gridCol w:w="240"/><w:gridCol w:w="2760"/></w:tblGrid>`+
+    `<w:tr><w:tc><w:tcPr><w:tcW w:w="6500" w:type="dxa"/><w:gridSpan w:val="3"/>`+
+    `<w:shd w:val="clear" w:fill="${HIJ}"/></w:tcPr>`+
+    `<w:p><w:pPr><w:jc w:val="center"/></w:pPr>${wr('Hasil Pengukuran',24,true,'FFFFFF')}</w:p></w:tc></w:tr>`+
+    hRow('Azimut Kiblat',azKibStr)+
+    hRow('Azimut Bangunan / Mihrab',azBgStr)+
+    hRow('Selisih Azimut',selisihAzStr)+
+    `</w:tbl>`;
+
+  // Tabel 2 kolom data pendukung
+  const nbrd = `<w:tcBorders><w:top w:val="none"/><w:bottom w:val="none"/><w:left w:val="none"/><w:right w:val="none"/></w:tcBorders>`;
+  const dp = (l,v) => `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="0" w:after="0" w:line="260" w:lineRule="auto"/></w:pPr>${wr(l+': ',19)}${wr(v,19,true)}</w:p>`;
+  const tblData =
+    `<w:tbl><w:tblPr><w:tblW w:w="8400" w:type="dxa"/>`+
+    `<w:tblBorders><w:top w:val="none"/><w:bottom w:val="none"/><w:left w:val="none"/><w:right w:val="none"/><w:insideH w:val="none"/><w:insideV w:val="none"/></w:tblBorders></w:tblPr>`+
+    `<w:tblGrid><w:gridCol w:w="4200"/><w:gridCol w:w="4200"/></w:tblGrid><w:tr>`+
+    `<w:tc><w:tcPr><w:tcW w:w="4200" w:type="dxa"/>${nbrd}</w:tcPr>`+
+    `<w:p><w:pPr><w:jc w:val="left"/></w:pPr>${wr('Data Astronomis:',20,true,HIJ)}</w:p>`+
+    dp('\u03b4 Deklinasi',dkStr)+dp('e Eq. of Time',eoStr)+dp('t Sudut Waktu',tStr2)+
+    dp('Z Azimut Siku',zStr)+dp('Az Matahari',amStr)+
+    dp('\u2190 Putar Kiri (L)',lStr)+dp('Putar Kanan (R) \u2192',rStr)+
+    dp('\u2600 Altitude+Refraksi',alStr)+`</w:tc>`+
+    `<w:tc><w:tcPr><w:tcW w:w="4200" w:type="dxa"/>${nbrd}</w:tcPr>`+
+    `<w:p><w:pPr><w:jc w:val="left"/></w:pPr>${wr('Data Matahari Hari Ini:',20,true,HIJ)}</w:p>`+
+    dp('Terbit',tbitStr)+dp('Kulminasi / Zawal',kulStr)+dp('Terbenam',tbnmStr)+
+    dp('Rashdul Qiblat I',rqPStr)+dp('Rashdul Qiblat II',rqSStr)+
+    dp('Waktu Bidik (W)',wBStr)+
+    `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="80" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>${wr('Rumus Rashdul Qiblat:',17,true,HIJ)}</w:p>`+
+    `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>${wr('F = arctan[1\u00f7(cos(A)\u00d7tan(360\u00b0\u2212Q))]',16,false,'444444')}</w:p>`+
+    `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>${wr('R = arccos[tan(A)\u00d7cos(F)\u00f7tan(J)]',16,false,'444444')}</w:p>`+
+    `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr>${wr('A=90\u00b0\u2212\u03c6 \u00b7 J=90\u00b0\u2212\u03b4 \u00b7 Metode F&R (terverifikasi)',15,false,'888888')}</w:p>`+
+    `</w:tc></w:tr></w:tbl>`;
+
+  // ── ISI LENGKAP ──
+  const isi =
+    wp(wr('Pengurus Cabang Nahdlatul Ulama Bangkalan',21,false,HIJ),'center',80,0)+
+    wp(wr('LEMBAGA FALAKIYAH',28,true,HIJ),'center',0,0)+
+    wp(wr(''),'center',0,0,276,true)+
+    gap(1)+
+    wp(wr('SERTIFIKAT ARAH KIBLAT',38,true),'center',0,0)+
+    wp(wr(`No: _____ / A.Q / LF / PCNU / _____ / ${yyyy}`,20,false,'000000',true),'center',40,0)+
+    gap(1)+
+    wp(wr('Diberikan kepada:',22),'center',80,0)+
+    wp(wr(namaMasjid?namaMasjid.toUpperCase():'MASJID / MUSHOLLA _______________________________',28,true,'000000',false,true),'center',40,0)+
+    wp(wr(alamat?'( '+alamat+' )':'( Alamat: _____________________________________________ )',21,false,'000000',true),'center',0,0)+
+    wp(wr('Lintang : ',22)+wr(latStr,22,true)+wr('     \u2013     Bujur : ',22)+wr(lonStr,22,true),'center',30,0)+
+    wp(wr(''),'center',80,80,276,true)+
+    `<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:before="120" w:after="0" w:line="360" w:lineRule="auto"/></w:pPr>`+
+    wr('Telah dilaksanakan pengukuran arah kiblat di lokasi tersebut oleh Pengurus Lembaga Falakiyah PCNU Bangkalan pada ',24)+
+    wr('Hari _____________, '+tglPanjang,24,true)+
+    wr(' bertepatan dengan _____ _____________ _____ H, pukul '+wBStr+' WIB.',24)+`</w:p>`+
+    gap(1)+
+    `<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto"/></w:pPr>`+
+    wr('Metode: ',24,true)+
+    wr('Pengukuran dilaksanakan dengan metode ',24)+
+    wr('azimut matahari',24,false,'000000',true)+
+    wr(' menggunakan ',24)+
+    wr((th.Az_sun!==null?'theodolit':'bayangan matahari'),24,false,'000000',true)+
+    wr('. Arah utara sejati ',24)+
+    wr('(True North)',24,false,'000000',true)+
+    wr(' ditetapkan berdasarkan posisi matahari yang dihitung secara astronomis menggunakan data deklinasi dan sudut waktu pada saat pengukuran.',24)+`</w:p>`+
+    gap(1)+
+    (G.rq&&(G.rq.pagi||G.rq.sore)?
+    `<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto"/></w:pPr>`+
+    wr('Verifikasi: ',24,true)+
+    wr('Arah kiblat hasil pengukuran telah diverifikasi melalui fenomena ',24)+
+    wr("Rashdul Qiblat (Istiwa' A'dham)",24,false,'000000',true)+
+    wr(', yaitu saat bayangan benda tegak menunjuk tepat ke arah kiblat, yang terjadi pada pukul '+(G.rq.pagi?rqPStr:'')+(G.rq.pagi&&G.rq.sore?' dan ':'')+( G.rq.sore?rqSStr:'')+' WIB.',24)+`</w:p>`+gap(1)
+    :gap(1))+
+    gap(1)+tblHasil+gap(1)+tblData+gap(1)+
+    `<w:p><w:pPr><w:jc w:val="both"/><w:spacing w:before="0" w:after="0" w:line="360" w:lineRule="auto"/></w:pPr>`+
+    wr('Hasil pengukuran tersebut di atas telah ditetapkan sebagai arah kiblat yang dapat dipertanggungjawabkan secara ilmiah sesuai kaidah ilmu falak. Demikian sertifikat ini dibuat untuk dipergunakan sebagaimana mestinya.',24)+`</w:p>`+
+    gap(2)+
+    wp(wr('Bangkalan, ',24)+wr(tglPanjang,24,false,'000000',false,true),'right',0,0)+
+    wp(wr('_____ Hijriah',22),'right',0,0)+
+    wp(wr('Lembaga Falakiyah',24),'right',60,0)+
+    wp(wr('PCNU Bangkalan',24),'right',0,0)+
+    gap(4)+
+    wp(wr('Muhammad Thuba, M.Pd',24,true,'000000',false,true),'right',0,0)+
+    wp(wr('Ketua LF PCNU Bangkalan',21,false,'000000',true),'right',0,0)+
+    gap(1)+
+    `<w:p><w:pPr><w:jc w:val="left"/><w:pBdr><w:top w:val="single" w:sz="6" w:space="1" w:color="${HIJ}"/></w:pBdr><w:spacing w:before="120" w:after="60"/></w:pPr>${wr('Instrumen yang digunakan:',22,true)}</w:p>`+
+    (th.Az_sun!==null?
+    ['1.  Theodolit','2.  Data ephemeris matahari','3.  Software hitung falak Penjuru Langit (FALAKPRO CORE v2)']:
+    ['1.  Tongkat istiwa / benda tegak','2.  Bidang datar (papan / lantai)','3.  Data ephemeris matahari','4.  Software hitung falak Penjuru Langit (FALAKPRO CORE v2)'])
+      .map(t=>wp(wr(t,22),'left',0,0)).join('')+
+    gap(1)+
+    `<w:p><w:pPr><w:jc w:val="center"/><w:pBdr><w:top w:val="single" w:sz="4" w:space="1" w:color="CCCCCC"/></w:pBdr><w:spacing w:before="80" w:after="0"/></w:pPr>`+
+    wr('\u0627\u0644\u062d\u0627\u0633\u0628: \u0645\u062d\u0645\u062f \u0637\u0648\u0628\u0649  \u2014  FALAKPRO CORE v2 (Jean Meeus Ch.25 + Refraksi Bennett 1982 + Rashdul Qiblat: Metode F\u0026R)',18,false,'888888',true)+`</w:p>`;
+
+  // Bingkai luar (double border hijau)
+  const bingkai = inner =>
+    `<w:tbl><w:tblPr><w:tblW w:w="9300" w:type="dxa"/>`+
+    `<w:tblBorders>`+
+    `<w:top w:val="double" w:sz="24" w:space="1" w:color="${HIJ}"/>`+
+    `<w:bottom w:val="double" w:sz="24" w:space="1" w:color="${HIJ}"/>`+
+    `<w:left w:val="double" w:sz="24" w:space="1" w:color="${HIJ}"/>`+
+    `<w:right w:val="double" w:sz="24" w:space="1" w:color="${HIJ}"/>`+
+    `</w:tblBorders></w:tblPr>`+
+    `<w:tblGrid><w:gridCol w:w="9300"/></w:tblGrid>`+
+    `<w:tr><w:tc><w:tcPr><w:tcW w:w="9300" w:type="dxa"/>`+
+    `<w:tcBorders>`+
+    `<w:top w:val="single" w:sz="10" w:space="1" w:color="${HIJ}"/>`+
+    `<w:bottom w:val="single" w:sz="10" w:space="1" w:color="${HIJ}"/>`+
+    `<w:left w:val="single" w:sz="10" w:space="1" w:color="${HIJ}"/>`+
+    `<w:right w:val="single" w:sz="10" w:space="1" w:color="${HIJ}"/>`+
+    `</w:tcBorders>`+
+    `<w:tcMar><w:top w:w="280" w:type="dxa"/><w:bottom w:w="280" w:type="dxa"/>`+
+    `<w:left w:w="360" w:type="dxa"/><w:right w:w="360" w:type="dxa"/></w:tcMar>`+
+    `</w:tcPr>${inner}</w:tc></w:tr></w:tbl>`;
+
+  // ── Rakit dokumen XML ──
+  const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'+
+    ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+
+  const docXml =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`+
+    `<w:document ${NS}><w:body>`+
+    bingkai(isi)+
+    `<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>`+
+    `<w:pgMar w:top="567" w:right="567" w:bottom="567" w:left="567"/></w:sectPr>`+
+    `</w:body></w:document>`;
+
+  const stylesXml =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`+
+    `<w:styles ${NS}><w:docDefaults><w:rPrDefault><w:rPr>`+
+    `<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman"/>`+
+    `<w:sz w:val="24"/><w:szCs w:val="24"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
+
+  const relsXml =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`+
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`+
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`+
+    `</Relationships>`;
+
+  const appRels =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`+
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`+
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>`+
+    `</Relationships>`;
+
+  const ctXml =
+    `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>`+
+    `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">`+
+    `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>`+
+    `<Default Extension="xml" ContentType="application/xml"/>`+
+    `<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>`+
+    `<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>`+
+    `</Types>`;
+
+  // ── ZIP dan download via JSZip ──
+  function doZip(){
+    const zip = new JSZip();
+    zip.file('[Content_Types].xml', ctXml);
+    zip.file('_rels/.rels', appRels);
+    zip.file('word/document.xml', docXml);
+    zip.file('word/styles.xml', stylesXml);
+    zip.file('word/_rels/document.xml.rels', relsXml);
+    zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})
+    .then(blob=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=`Sertifikat_Kiblat_PCNU_${yyyy}${mm2}${dd}.docx`;
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
+    }).catch(e=>alert('Gagal buat file: '+e.message));
+  }
+
+  if(typeof JSZip!=='undefined'){
+    doZip();
+  } else {
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload=doZip;
+    s.onerror=()=>alert('Gagal load JSZip. Periksa koneksi internet.');
+    document.head.appendChild(s);
+  }
+}
+
+
+// ═══════════════════════════════════
+// NAVIGASI TAB
+// ═══════════════════════════════════
+function gotoTab(n,el){
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('pane-'+n).classList.add('on');
+  if(n==='laporan')updateLaporan();
+}
+function gotoSubTab(n,el){
+  document.querySelectorAll('.sub-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.sub-pane').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('sub-'+n).classList.add('on');
+}
+
+// ═══════════════════════════════════
+// JAM HEADER
+// ═══════════════════════════════════
+function tickJam(){
+  const now=new Date();
+  document.getElementById('hdrTime').textContent=
+    `${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}  WIB`;
+}
+
+// ═══════════════════════════════════
+// PWA — manifest & ikon (kompas mata angin, PNG asli)
+// ═══════════════════════════════════
+/* Ikon PNG (bukan SVG) — SVG utk manifest icon punya bug dikonfirmasi resmi
+   di Chromium: kadang gagal install & diam-diam jatuh ke mode "shortcut"
+   (muncul badge logo Chrome kecil, bukan app mandiri). PNG dijamin didukung
+   penuh di semua versi Chrome/Android. */
+function initPWA(){
+  const icon192 ='data:image/png;base64,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';
+  const icon512 ='data:image/png;base64,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';
+  const icon512m='data:image/png;base64,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';
+
+  const manifest={
+    name:'Penjuru Langit – Falak LF PCNU Bangkalan',
+    short_name:'Penjuru Langit',
+    description:'Alat ukur azimut, arah kiblat, dan theodolit falak',
+    start_url:window.location.href, display:'standalone',
+    background_color:'#0e1214', theme_color:'#c9a227',
+    orientation:'portrait-primary',
+    icons:[
+      {src:icon192, sizes:'192x192', type:'image/png', purpose:'any'},
+      {src:icon512, sizes:'512x512', type:'image/png', purpose:'any'},
+      {src:icon512m,sizes:'512x512', type:'image/png', purpose:'maskable'}
+    ]
+  };
+  try{
+    const mb=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+    document.getElementById('pwa-manifest').href=URL.createObjectURL(mb);
+  }catch(e){}
+  try{document.getElementById('apple-icon').href=icon512;}catch(e){}
+
+  // Service Worker opsional (file sw.js terpisah, utk mode offline).
+  // Kalau sw.js tidak diupload bareng HTML ini, baris ini gagal diam-diam
+  // (.catch) & app tetap berjalan normal, hanya tanpa cache offline.
+  if('serviceWorker' in navigator && location.protocol==='https:'){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  initPWA();
+  const now=new Date();
+  document.getElementById('tgl').value=now.toISOString().slice(0,10);
+  document.getElementById('Wj').value=now.getHours();
+  document.getElementById('Wm').value=now.getMinutes();
+  document.getElementById('Wd').value=now.getSeconds();
+  // Listener azimut bangunan
+  ['inpAzBgD','inpAzBgM','inpAzBgS'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input',hitungSelisihAzBangunan);
+  });
+  tickJam();
+  draw();
+  setInterval(()=>{
+    tickJam();
+    if(modeWaktu==='rt')tickSun();
+    realtimeSun();
+    tickCountdown();
+  },1000);
+  // Refresh terbit/terbenam tiap 5 menit
+  setInterval(()=>{if(G.lat)refreshTerbitRashdul();},300000);
+});
+</script>
+
+<!-- docx.js untuk generate Word -->
+
+</body>
+</html>
